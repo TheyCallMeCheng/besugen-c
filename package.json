@@ -1,0 +1,21 @@
+{
+  "name": "besugen",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Besugen - Discord Card Game",
+  "scripts": {
+    "dev": "pnpm run --parallel dev",
+    "dev:client": "pnpm --filter @besugen/client dev",
+    "dev:server": "pnpm --filter @besugen/server dev",
+    "build": "pnpm run -r build",
+    "build:client": "pnpm --filter @besugen/client build",
+    "build:server": "pnpm --filter @besugen/server build",
+    "clean": "pnpm run -r clean",
+    "lint": "pnpm run -r lint",
+    "typecheck": "pnpm run -r typecheck"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

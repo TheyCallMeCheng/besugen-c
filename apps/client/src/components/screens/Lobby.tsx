@@ -1,0 +1,195 @@
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { PlayerAvatar, EmptyPlayerSlot } from '../ui';
+
+interface Player {
+    id: string;
+    name: string;
+    imageUrl?: string;
+    isHost?: boolean;
+    isReady?: boolean;
+}
+
+interface LobbyProps {
+    roomCode: string;
+    players: Player[];
+    maxPlayers?: number;
+    isHost?: boolean;
+    pointsToWin?: number;
+    minPlayers?: number;
+    onStartGame?: () => void;
+    onInviteFriends?: () => void;
+    onLeave?: () => void;
+    onPointsChange?: (points: number) => void;
+    onCopyRoomCode?: () => void;
+}
+
+export function Lobby({
+    roomCode,
+    players,
+    maxPlayers = 6,
+    isHost = false,
+    pointsToWin = 500,
+    minPlayers = 3,
+    onStartGame,
+    onInviteFriends,
+    onLeave,
+    onPointsChange,
+    onCopyRoomCode,
+}: LobbyProps) {
+    const [localPoints, setLocalPoints] = useState(pointsToWin);
+    const emptySlots = maxPlayers - players.length;
+    const canStart = players.length >= minPlayers;
+
+    const handlePointsChange = (value: number) => {
+        setLocalPoints(value);
+        onPointsChange?.(value);
+    };
+
+    return (
+        <div className="min-h-screen bg-lobby flex flex-col">
+            {/* Header */}
+            <header className="p-6 flex justify-between items-start">
+                <div>
+                    {/* Logo and Title */}
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                            <span className="text-white text-xl">🂠</span>
+                        </div>
+                        <h1 className="text-3xl font-bold text-white">Besugen</h1>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-400">
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        <span>Waiting Lobby</span>
+                        <span>•</span>
+                        <span>{players.length}/{maxPlayers} Players</span>
+                    </div>
+                </div>
+
+                {/* Room Code */}
+                <motion.button
+                    onClick={onCopyRoomCode}
+                    className="flex items-center gap-3 bg-slate-800 rounded-lg px-4 py-2 hover:bg-slate-700 transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                >
+                    <span className="text-slate-400 text-sm">ROOM CODE</span>
+                    <span className="font-mono text-white font-semibold tracking-wider">{roomCode}</span>
+                    <span className="text-slate-500">📋</span>
+                </motion.button>
+            </header>
+
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+                {/* Player Slots */}
+                <motion.div
+                    className="card-panel p-8 mb-8 w-full max-w-3xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
+                    <div className="flex justify-center gap-8 flex-wrap">
+                        {/* Existing players */}
+                        {players.map((player) => (
+                            <PlayerAvatar
+                                key={player.id}
+                                name={player.name}
+                                imageUrl={player.imageUrl}
+                                isHost={player.isHost}
+                                isReady={player.isReady}
+                                size="lg"
+                            />
+                        ))}
+
+                        {/* Empty slots */}
+                        {Array.from({ length: emptySlots }).map((_, i) => (
+                            <EmptyPlayerSlot key={`empty-${i}`} size="lg" />
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Bottom Section: Settings + Actions */}
+                <div className="flex gap-6 w-full max-w-3xl">
+                    {/* Game Settings */}
+                    <motion.div
+                        className="card-panel p-6 flex-1"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-2">
+                                <span>⚙️</span>
+                                <h2 className="text-white font-semibold">Game Settings</h2>
+                            </div>
+                            {isHost && (
+                                <span className="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">HOST ONLY</span>
+                            )}
+                        </div>
+
+                        {/* Points to Win Slider */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-slate-400">Points to Win</span>
+                                <span className="text-white font-semibold text-xl">{localPoints}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min={250}
+                                max={2000}
+                                step={250}
+                                value={localPoints}
+                                onChange={(e) => handlePointsChange(Number(e.target.value))}
+                                disabled={!isHost}
+                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            />
+                            <div className="flex justify-between text-xs text-slate-500 mt-2">
+                                <span>250</span>
+                                <span>500</span>
+                                <span>1000</span>
+                                <span>2000</span>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Action Buttons */}
+                    <motion.div
+                        className="flex flex-col gap-4 w-64"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <motion.button
+                            onClick={onInviteFriends}
+                            className="btn-secondary py-4"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <span>🔗</span>
+                            <span>Invite Friends</span>
+                        </motion.button>
+
+                        <motion.button
+                            onClick={onStartGame}
+                            disabled={!canStart || !isHost}
+                            className={`py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart && isHost
+                                    ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
+                                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                                }`}
+                            whileHover={canStart && isHost ? { scale: 1.02 } : undefined}
+                            whileTap={canStart && isHost ? { scale: 0.98 } : undefined}
+                        >
+                            <span>▶</span>
+                            <span>Start Game</span>
+                        </motion.button>
+
+                        {!canStart && (
+                            <p className="text-center text-slate-500 text-sm">
+                                ⚠️ Minimum {minPlayers} players required
+                            </p>
+                        )}
+                    </motion.div>
+                </div>
+            </main>
+        </div>
+    );
+}

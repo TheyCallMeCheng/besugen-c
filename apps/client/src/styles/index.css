@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(30, 27, 75, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.7);
+}
+
+/* Utility classes */
+@layer components {
+
+    /* Main Menu Background */
+    .bg-main-menu {
+        background: linear-gradient(135deg, #1a1c2e 0%, #252840 50%, #1a1c2e 100%);
+    }
+
+    /* Game Table Background */
+    .bg-game-table {
+        background: radial-gradient(ellipse at center, #2d4a3e 0%, #1a2f26 50%, #0f1a14 100%);
+    }
+
+    /* Lobby Background */
+    .bg-lobby {
+        background: linear-gradient(180deg, #151824 0%, #1a1f2e 100%);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2;
+    }
+
+    .btn-secondary {
+        @apply bg-slate-700/50 hover:bg-slate-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 border border-slate-600/50 flex items-center justify-center gap-2;
+    }
+
+    .btn-success {
+        @apply bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-green-500/25 flex items-center justify-center gap-2;
+    }
+
+    .btn-ghost {
+        @apply bg-transparent hover:bg-white/10 text-white/70 hover:text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2;
+    }
+
+    /* Cards */
+    .card-panel {
+        @apply bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl;
+    }
+
+    /* Playing Card Base */
+    .playing-card {
+        @apply relative bg-white rounded-xl shadow-xl transition-all duration-200;
+        aspect-ratio: 2.5 / 3.5;
+    }
+
+    .playing-card-back {
+        @apply relative rounded-xl shadow-xl;
+        aspect-ratio: 2.5 / 3.5;
+        background: linear-gradient(135deg, #c9553d 0%, #8b2f1f 100%);
+    }
+
+    /* Player Avatar */
+    .player-avatar {
+        @apply relative rounded-full overflow-hidden border-2 border-slate-600;
+    }
+
+    .player-avatar.active {
+        @apply border-green-500;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+
+    .player-avatar.current-turn {
+        @apply border-green-400;
+        animation: pulse-glow 2s infinite;
+    }
+
+    /* Room Code Badge */
+    .room-code {
+        @apply bg-slate-800 rounded-lg px-4 py-2 font-mono text-lg flex items-center gap-2;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        @apply text-xs font-medium px-2 py-0.5 rounded;
+    }
+
+    .status-badge.host {
+        @apply bg-blue-500/20 text-blue-400;
+    }
+
+    .status-badge.ready {
+        @apply text-green-400;
+    }
+}
+
+@layer utilities {
+
+    /* Card selection glow */
+    .card-selected {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.6), 0 0 40px rgba(34, 197, 94, 0.3);
+        transform: translateY(-20px);
+    }
+
+    .card-hover {
+        transform: translateY(-12px);
+    }
+}
+
+/* Animations */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: -3s;
+}
