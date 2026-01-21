@@ -223,7 +223,7 @@ export function GameTable({
                             </div>
                             <div>
                                 <p className="text-white font-medium">
-                                    You ({myPlayer.name})
+                                    {myPlayer.name.length > 25 ? myPlayer.name.slice(0, 24) + '…' : myPlayer.name}
                                     {isSpectator && <span className="ml-2 text-slate-400 text-sm">👁 Spectating</span>}
                                 </p>
                                 {/* Lives */}
@@ -264,20 +264,19 @@ export function GameTable({
                         <motion.button
                             onClick={handlePlaySelected}
                             disabled={!selectedCardId || !isMyTurn}
-                            className={`rounded-lg px-8 py-3 flex flex-col items-center gap-1 transition-all ${selectedCardId && isMyTurn
+                            className={`rounded-lg px-8 py-3 flex items-center gap-2 transition-all ${selectedCardId && isMyTurn
                                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
                                 : 'bg-slate-700 text-slate-400 cursor-not-allowed'
                                 }`}
                             whileHover={selectedCardId && isMyTurn ? { scale: 1.02 } : undefined}
                             whileTap={selectedCardId && isMyTurn ? { scale: 0.98 } : undefined}
                         >
-                            <div className="flex items-center gap-2">
-                                <span>▶</span>
-                                <span className="font-medium">{isMyTurn ? 'Play Selected' : 'Wait for your turn'}</span>
-                            </div>
-                            {selectedCardId && (
-                                <span className="text-xs text-green-300">SELECTED</span>
-                            )}
+                            <span>▶</span>
+                            <span className="font-medium">
+                                {isMyTurn
+                                    ? (selectedCardId ? 'Play Selected' : 'Select a Card')
+                                    : 'Wait for your turn'}
+                            </span>
                         </motion.button>
                     </div>
                 )}

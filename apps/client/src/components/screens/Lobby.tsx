@@ -40,12 +40,19 @@ export function Lobby({
     onCopyRoomCode,
 }: LobbyProps) {
     const [localPoints, setLocalPoints] = useState(pointsToWin);
+    const [copied, setCopied] = useState(false);
     const emptySlots = maxPlayers - players.length;
     const canStart = players.length >= minPlayers;
 
     const handlePointsChange = (value: number) => {
         setLocalPoints(value);
         onPointsChange?.(value);
+    };
+
+    const handleCopyRoomCode = () => {
+        onCopyRoomCode?.();
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
@@ -70,14 +77,14 @@ export function Lobby({
 
                 {/* Room Code */}
                 <motion.button
-                    onClick={onCopyRoomCode}
-                    className="flex items-center gap-3 bg-slate-800 rounded-lg px-4 py-2 hover:bg-slate-700 transition-colors"
+                    onClick={handleCopyRoomCode}
+                    className={`flex items-center gap-3 rounded-lg px-4 py-2 transition-colors focus:outline-none ${copied ? 'bg-green-600' : 'bg-slate-800 hover:bg-slate-700'}`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                 >
-                    <span className="text-slate-400 text-sm">ROOM CODE</span>
+                    <span className={`text-sm ${copied ? 'text-white font-medium' : 'text-slate-400'}`}>{copied ? 'COPIED!' : 'ROOM CODE'}</span>
                     <span className="font-mono text-white font-semibold tracking-wider">{roomCode}</span>
-                    <span className="text-slate-500">📋</span>
+                    <span className={copied ? 'text-white' : 'text-slate-500'}>{copied ? '✓' : '📋'}</span>
                 </motion.button>
             </header>
 

@@ -26,6 +26,12 @@ const SIZE_CLASSES = {
     lg: 'w-20 h-20',
 };
 
+// Truncate long names to max 25 characters
+const truncateName = (name: string, maxLength = 25) => {
+    if (name.length <= maxLength) return name;
+    return name.slice(0, maxLength - 1) + '…';
+};
+
 export function PlayerAvatar({
     name,
     imageUrl,
@@ -118,7 +124,7 @@ export function PlayerAvatar({
 
             {/* Name and status */}
             <div className="text-center">
-                <p className={`font-medium text-sm ${isSpectator ? 'text-slate-500' : 'text-white'}`}>{name}</p>
+                <p className={`font-medium text-sm ${isSpectator ? 'text-slate-500' : 'text-white'}`}>{truncateName(name)}</p>
 
                 {/* Lives display */}
                 {lives !== undefined && (

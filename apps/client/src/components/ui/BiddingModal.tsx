@@ -1,6 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 
+// Truncate long names to max 25 characters
+const truncateName = (name: string, maxLength = 25) => {
+    if (name.length <= maxLength) return name;
+    return name.slice(0, maxLength - 1) + '…';
+};
+
 interface BiddingModalProps {
     isOpen: boolean;
     isMyTurn: boolean;
@@ -90,7 +96,7 @@ export function BiddingModal({
                         <p className="text-slate-400">
                             {isMyTurn
                                 ? `How many tricks will you win? (${cardCount} cards)`
-                                : `Waiting for ${currentBidderName}...`}
+                                : `Waiting for ${truncateName(currentBidderName)}...`}
                         </p>
                     </div>
 
@@ -115,7 +121,7 @@ export function BiddingModal({
                                         key={i}
                                         className="bg-slate-800 rounded-lg px-3 py-2 text-sm"
                                     >
-                                        <span className="text-slate-400">{p.name}:</span>{' '}
+                                        <span className="text-slate-400">{truncateName(p.name)}:</span>{' '}
                                         <span className="text-green-400 font-bold">{p.bid}</span>
                                     </div>
                                 ))}
@@ -180,7 +186,7 @@ export function BiddingModal({
                         <div className="text-center py-4">
                             <div className="inline-flex items-center gap-2 text-slate-400">
                                 <div className="animate-spin w-5 h-5 border-2 border-slate-500 border-t-white rounded-full" />
-                                <span>Waiting for {currentBidderName} to bid...</span>
+                                <span>Waiting for {truncateName(currentBidderName)} to bid...</span>
                             </div>
                         </div>
                     )}

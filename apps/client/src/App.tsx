@@ -130,7 +130,7 @@ function App() {
 
         return (
             <Lobby
-                roomCode={room.id}
+                roomCode={room.roomId}
                 players={lobbyPlayers}
                 maxPlayers={6}
                 isHost={isHost}
@@ -138,7 +138,7 @@ function App() {
                 onStartGame={sendStartGame}
                 onToggleReady={sendReady}
                 onLeave={handleLeave}
-                onCopyRoomCode={() => navigator.clipboard.writeText(room.id)}
+                onCopyRoomCode={() => navigator.clipboard.writeText(room.roomId)}
             />
         );
     }

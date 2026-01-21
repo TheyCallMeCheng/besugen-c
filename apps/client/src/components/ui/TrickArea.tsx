@@ -18,12 +18,12 @@ interface TrickAreaProps {
 
 // Position offsets for cards played in trick (relative to center)
 const CARD_POSITIONS = [
-    { x: 0, y: 60, rotate: 0 },      // Bottom (first player)
-    { x: -80, y: 0, rotate: -15 },   // Left
-    { x: 0, y: -60, rotate: 180 },   // Top
-    { x: 80, y: 0, rotate: 15 },     // Right
-    { x: -40, y: -40, rotate: -10 }, // Top-left
-    { x: 40, y: -40, rotate: 10 },   // Top-right
+    { x: 0, y: 0, rotate: 0 },        // Center (first player)
+    { x: -20, y: 5, rotate: -8 },     // Slight left
+    { x: 20, y: 5, rotate: 8 },       // Slight right
+    { x: -10, y: -5, rotate: -4 },    // Upper left
+    { x: 10, y: -5, rotate: 4 },      // Upper right
+    { x: 0, y: 10, rotate: 2 },       // Lower center
 ];
 
 export function TrickArea({
@@ -116,7 +116,7 @@ export function TrickArea({
                                                 text-xs whitespace-nowrap px-2 py-1 rounded
                                                 ${isWinningCard ? 'bg-yellow-500 text-black font-bold' : 'bg-slate-800/80 text-white'}
                                             `}>
-                                                {tc.playerName}
+                                                {tc.playerName.length > 25 ? tc.playerName.slice(0, 24) + '…' : tc.playerName}
                                                 {isWinningCard && ' 👑'}
                                             </div>
                                         </div>
