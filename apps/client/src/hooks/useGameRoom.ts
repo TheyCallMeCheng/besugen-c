@@ -134,11 +134,26 @@ function extractGameState(room: Room): GameState {
   };
 }
 
+// Suit rank for sorting (higher = stronger)
+const SUIT_ORDER: Record<string, number> = {
+  hearts: 4,
+  diamonds: 3,
+  clubs: 2,
+  spades: 1,
+};
+
+// Card value rank for sorting (A=1, K=13)
+const VALUE_ORDER: Record<string, number> = {
+  'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
+  '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13,
+};
+
 export function useGameRoom() {
   const [room, setRoom] = useState<Room | null>(null);
   const [gameState, setGameState] = useState<GameState>(initialState);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSorted, setIsSorted] = useState(false);
 
   // Update game state from room
   const updateState = useCallback((r: Room) => {
@@ -253,6 +268,11 @@ export function useGameRoom() {
   const sendStartGame = useCallback(() => colyseusService.sendStartGame(), []);
   const sendBid = useCallback((bid: number) => colyseusService.sendBid(bid), []);
   const sendPlayCard = useCallback((cardId: string) => colyseusService.sendPlayCard(cardId), []);
+  
+  // Sort hand (client-side only)
+  const sortHand = useCallback(() => {
+    setIsSorted(prev => !prev);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -261,9 +281,18 @@ export function useGameRoom() {
     };
   }, []);
 
+  // Sort hand if needed
+  const sortedHand = isSorted
+    ? [...gameState.myHand].sort((a, b) => {
+        const suitDiff = SUIT_ORDER[b.suit] - SUIT_ORDER[a.suit];
+        if (suitDiff !== 0) return suitDiff;
+        return VALUE_ORDER[b.rank] - VALUE_ORDER[a.rank];
+      })
+    : gameState.myHand;
+
   return {
     room,
-    gameState,
+    gameState: { ...gameState, myHand: sortedHand },
     isConnecting,
     error,
     createRoom,
@@ -273,6 +302,7 @@ export function useGameRoom() {
     sendStartGame,
     sendBid,
     sendPlayCard,
+    sortHand,
     isHost: gameState.hostId === gameState.myPlayerId,
     isMyTurn: gameState.currentPlayerId === gameState.myPlayerId,
   };

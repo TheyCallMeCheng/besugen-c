@@ -38,7 +38,7 @@ export function TrickArea({
             <div className="absolute inset-0 rounded-full border-2 border-table-border/30" />
 
             {/* Deck */}
-            <div className="absolute left-1/4 transform -translate-x-1/2">
+            <div className="absolute left-1/4 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="relative">
                     <PlayingCard faceUp={false} size="md" />
                     {deckCount > 1 && (
@@ -55,16 +55,16 @@ export function TrickArea({
             </div>
 
             {/* Played cards in trick */}
-            <div className="absolute right-1/4 transform translate-x-1/2">
+            <div className="absolute right-1/4 top-1/2 transform translate-x-1/2 -translate-y-1/2">
                 <AnimatePresence>
                     {trickCards.length === 0 ? (
                         // Empty play area
-                        <div className="w-24 h-36 rounded-xl border-2 border-dashed border-table-border/50 flex items-center justify-center">
-                            <span className="text-table-border/50 text-sm text-center">Play here</span>
+                        <div className="w-24 h-32 rounded-xl border-2 border-dashed border-table-border/50 flex items-center justify-center">
+                            <span className="text-table-border/50 text-xs text-center">Play here</span>
                         </div>
                     ) : (
                         // Stack of played cards
-                        <div className="relative w-24 h-36">
+                        <div className="relative w-24 h-32">
                             {trickCards.map((tc, index) => {
                                 const pos = CARD_POSITIONS[index % CARD_POSITIONS.length];
                                 const isWinningCard = showWinner && tc.playerId === winnerId;

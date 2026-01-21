@@ -250,7 +250,7 @@ export function GameTable({
 
                 {/* Action Buttons (only during trick phase and not spectating) */}
                 {isTrickPhase && !isSpectator && (
-                    <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <div className="absolute bottom-64 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
                         <motion.button
                             onClick={onSortHand}
                             className="bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-lg px-6 py-3 flex items-center gap-2 transition-colors"

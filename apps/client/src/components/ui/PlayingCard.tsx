@@ -33,9 +33,15 @@ interface PlayingCardProps {
 }
 
 const SIZE_CLASSES = {
-    sm: 'w-16 h-24',
-    md: 'w-24 h-36',
-    lg: 'w-32 h-48',
+    sm: 'w-14 h-20',
+    md: 'w-24 h-32',
+    lg: 'w-32 h-44',
+};
+
+const TEXT_SIZES = {
+    sm: { corner: 'text-xs', symbol: 'text-xs', center: 'text-lg' },
+    md: { corner: 'text-sm', symbol: 'text-sm', center: 'text-3xl' },
+    lg: { corner: 'text-base', symbol: 'text-lg', center: 'text-5xl' },
 };
 
 export function PlayingCard({
@@ -48,6 +54,7 @@ export function PlayingCard({
     size = 'md',
 }: PlayingCardProps) {
     const sizeClass = SIZE_CLASSES[size];
+    const textSize = TEXT_SIZES[size];
 
     // Card back
     if (!faceUp || !card) {
@@ -77,7 +84,7 @@ export function PlayingCard({
             onClick={selectable ? onClick : undefined}
             className={`
         ${sizeClass} 
-        bg-white rounded-xl shadow-card 
+        relative bg-white rounded-xl shadow-card overflow-hidden
         flex flex-col justify-between p-2
         ${selectable ? 'cursor-pointer' : 'cursor-default'}
         ${selected ? 'ring-2 ring-green-500 card-selected' : ''}
@@ -88,20 +95,20 @@ export function PlayingCard({
             layout
         >
             {/* Top left corner */}
-            <div className={`flex flex-col items-start leading-none ${suitColor}`}>
-                <span className="font-bold text-lg">{card.rank}</span>
-                <span className="text-xl">{suitSymbol}</span>
+            <div className={`flex flex-col items-start leading-tight ${suitColor}`}>
+                <span className={`font-bold ${textSize.corner}`}>{card.rank}</span>
+                <span className={textSize.symbol}>{suitSymbol}</span>
             </div>
 
-            {/* Center suit */}
-            <div className={`flex-1 flex items-center justify-center ${suitColor}`}>
-                <span className="text-4xl">{suitSymbol}</span>
+            {/* Center suit - absolute for true centering */}
+            <div className={`absolute inset-0 flex items-center justify-center pointer-events-none ${suitColor}`}>
+                <span className={textSize.center}>{suitSymbol}</span>
             </div>
 
             {/* Bottom right corner (rotated) */}
-            <div className={`flex flex-col items-end leading-none rotate-180 ${suitColor}`}>
-                <span className="font-bold text-lg">{card.rank}</span>
-                <span className="text-xl">{suitSymbol}</span>
+            <div className={`flex flex-col items-end leading-tight rotate-180 mt-auto ${suitColor}`}>
+                <span className={`font-bold ${textSize.corner}`}>{card.rank}</span>
+                <span className={textSize.symbol}>{suitSymbol}</span>
             </div>
         </motion.div>
     );

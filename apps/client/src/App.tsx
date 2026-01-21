@@ -21,6 +21,7 @@ function App() {
         sendStartGame,
         sendBid,
         sendPlayCard,
+        sortHand,
         isHost,
     } = useGameRoom();
 
@@ -162,7 +163,7 @@ function App() {
                 currentTrick={gameState.currentTrick}
                 trickWinnerId={gameState.trickWinnerId}
                 onPlayCard={sendPlayCard}
-                onSortHand={() => {/* Could implement client-side sorting */ }}
+                onSortHand={sortHand}
                 onSubmitBid={sendBid}
                 onSettings={handleLeave}
             />
