@@ -237,7 +237,7 @@ export class GameRoom extends Room<GameStateSchema> {
     this.state.round++;
     this.state.trickNumber = 0;
     this.state.totalBids = 0;
-    this.state.trickWinnerId = '';
+    // Note: Don't clear trickWinnerId here - we need it to determine bidding order
     
     console.log(`[GameRoom] Starting round ${this.state.round} with ${this.state.currentCardCount} cards`);
 
@@ -270,15 +270,33 @@ export class GameRoom extends Room<GameStateSchema> {
       }
     });
 
-    // Set up bidding order (rotate starting player each round)
+    // Set up bidding order
+    // First round: use simple rotation
+    // Subsequent rounds: last trick winner of previous round starts
     this.state.biddingOrder.clear();
-    const startIndex = (this.state.round - 1) % activePlayers.length;
+    
+    let startingPlayerId: string;
+    if (this.state.round === 1 || !this.state.trickWinnerId) {
+      // First round or no winner yet - use rotation
+      const startIndex = (this.state.round - 1) % activePlayers.length;
+      startingPlayerId = activePlayers[startIndex] ?? activePlayers[0] ?? '';
+    } else {
+      // Subsequent rounds - last trick winner starts
+      startingPlayerId = this.state.trickWinnerId;
+    }
+    
+    // Build bidding order starting from the chosen player
+    const startIndex = activePlayers.indexOf(startingPlayerId);
+    const actualStartIndex = startIndex >= 0 ? startIndex : 0;
     for (let i = 0; i < activePlayers.length; i++) {
-      const index = (startIndex + i) % activePlayers.length;
+      const index = (actualStartIndex + i) % activePlayers.length;
       this.state.biddingOrder.push(activePlayers[index]);
     }
     
     this.state.currentBidderIndex = 0;
+    
+    // Now clear trickWinnerId for this round's tricks
+    this.state.trickWinnerId = '';
 
     // Start bidding phase
     this.state.phase = GamePhase.BIDDING;

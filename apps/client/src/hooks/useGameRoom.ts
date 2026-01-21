@@ -269,9 +269,9 @@ export function useGameRoom() {
   const sendBid = useCallback((bid: number) => colyseusService.sendBid(bid), []);
   const sendPlayCard = useCallback((cardId: string) => colyseusService.sendPlayCard(cardId), []);
   
-  // Sort hand (client-side only)
+  // Sort hand (client-side only) - once sorted, stays sorted
   const sortHand = useCallback(() => {
-    setIsSorted(prev => !prev);
+    setIsSorted(true);
   }, []);
 
   // Cleanup on unmount
