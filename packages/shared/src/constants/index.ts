@@ -1,7 +1,10 @@
 // Game phases
 export const GamePhase = {
   LOBBY: 'lobby',
-  PLAYING: 'playing',
+  DEALING: 'dealing',
+  BIDDING: 'bidding',
+  TRICK: 'trick',
+  TRICK_END: 'trick_end',
   ROUND_END: 'round_end',
   GAME_OVER: 'game_over',
 } as const;
@@ -13,18 +16,38 @@ export const PlayerStatus = {
   WAITING: 'waiting',
   READY: 'ready',
   PLAYING: 'playing',
+  BIDDING: 'bidding',
+  SPECTATOR: 'spectator',
   ELIMINATED: 'eliminated',
   DISCONNECTED: 'disconnected',
 } as const;
 
 export type PlayerStatusType = (typeof PlayerStatus)[keyof typeof PlayerStatus];
 
+// Suit ranking (higher = stronger)
+export const SuitRank = {
+  HEARTS: 4,
+  DIAMONDS: 3,
+  CLUBS: 2,
+  SPADES: 1,
+} as const;
+
+export const Suits = ['spades', 'clubs', 'diamonds', 'hearts'] as const;
+export type SuitType = (typeof Suits)[number];
+
+// Card value ranking (K=13 highest, A=1 lowest)
+export const CardValues = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'] as const;
+export type CardValueType = (typeof CardValues)[number];
+
 // Game configuration
 export const GameConfig = {
   MIN_PLAYERS: 2,
-  MAX_PLAYERS: 4,
+  MAX_PLAYERS: 6,
   STARTING_LIVES: 3,
   RECONNECT_TIMEOUT_MS: 30000,
+  BID_TIMEOUT_MS: 10000,
+  CARD_COUNTS: [5, 4, 3, 2, 1] as readonly number[],
+  TRICK_RESOLVE_DELAY_MS: 1500,
 } as const;
 
 // WebSocket message types

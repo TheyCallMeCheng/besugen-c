@@ -14,7 +14,7 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "framer-motion": "^10.16.16",
-        "colyseus.js": "^0.15.0",
+        "colyseus.js": "0.16.5",
         "@besugen/shared": "workspace:*"
     },
     "devDependencies": {

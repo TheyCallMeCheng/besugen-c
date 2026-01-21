@@ -33,7 +33,7 @@ const gameServer = new Server({
 });
 
 // Register game room
-gameServer.define('game', GameRoom);
+gameServer.define('game_room', GameRoom);
 
 // Start server
 httpServer.listen(PORT, () => {

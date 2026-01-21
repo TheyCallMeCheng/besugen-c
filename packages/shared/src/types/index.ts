@@ -1,12 +1,18 @@
-import type { GamePhaseType, PlayerStatusType } from '../constants';
+import type { GamePhaseType, PlayerStatusType, SuitType, CardValueType } from '../constants';
 
-// Card types - to be expanded based on game design
+// Card types
 export interface Card {
   id: string;
-  type: string;
-  value: number;
-  name: string;
-  description: string;
+  suit: SuitType;
+  value: CardValueType;
+  numericValue: number; // 1-13 for comparison
+}
+
+// Card played in a trick
+export interface TrickCard {
+  playerId: string;
+  card: Card;
+  playOrder: number;
 }
 
 // Player state
@@ -20,6 +26,10 @@ export interface Player {
   hand: Card[];
   isHost: boolean;
   connectedAt: number;
+  // Round-specific state
+  bid: number; // -1 = not yet bid
+  tricksWon: number;
+  isSpectator: boolean;
 }
 
 // Game state
@@ -34,6 +44,19 @@ export interface GameState {
   hostId: string;
   createdAt: number;
   startedAt: number | null;
+  // Round state
+  cardCountIndex: number; // Index in CARD_COUNTS [5,4,3,2,1]
+  currentCardCount: number;
+  // Bidding state
+  biddingOrder: string[]; // Player IDs in bidding order
+  currentBidderIndex: number;
+  totalBids: number;
+  bidTimerEnd: number; // Timestamp when current bid timer expires
+  // Trick state
+  currentTrick: TrickCard[];
+  leadSuit: SuitType | null;
+  trickNumber: number;
+  trickWinnerId: string | null;
 }
 
 // Room options

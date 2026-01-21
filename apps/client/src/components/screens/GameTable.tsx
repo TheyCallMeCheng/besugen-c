@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { PlayerAvatar, PlayingCard, CardFan, type CardData } from '../ui';
+import { PlayerAvatar, PlayingCard, CardFan, BiddingModal, TrickArea, type CardData, type TrickCardData } from '../ui';
 
 interface Player {
     id: string;
@@ -10,22 +10,36 @@ interface Player {
     cardCount: number;
     isCurrentTurn?: boolean;
     status?: string;
+    // Game-specific
+    lives?: number;
+    bid?: number;
+    tricksWon?: number;
+    isSpectator?: boolean;
 }
+
+type GamePhase = 'lobby' | 'dealing' | 'bidding' | 'trick' | 'trick_end' | 'round_end' | 'game_over';
 
 interface GameTableProps {
     roomId?: string;
     round: number;
-    potSize: number;
+    phase: GamePhase;
     players: Player[];
     currentPlayerId?: string;
     myPlayerId: string;
     myHand: CardData[];
     deckCount: number;
-    lastPlayedCard?: CardData;
-    lastPlayedBy?: string;
+    // Bidding state
+    bidTimerEnd?: number;
+    totalBidsSoFar?: number;
+    currentBidderIndex?: number;
+    biddingOrder?: string[];
+    // Trick state
+    currentTrick?: TrickCardData[];
+    trickWinnerId?: string;
+    // Callbacks
     onPlayCard?: (cardId: string) => void;
     onSortHand?: () => void;
-    onPassTurn?: () => void;
+    onSubmitBid?: (bid: number) => void;
     onSettings?: () => void;
 }
 
@@ -40,17 +54,21 @@ const PLAYER_POSITIONS = [
 
 export function GameTable({
     round,
-    potSize,
+    phase,
     players,
     currentPlayerId,
     myPlayerId,
     myHand,
     deckCount,
-    lastPlayedCard,
-    lastPlayedBy,
+    bidTimerEnd,
+    totalBidsSoFar = 0,
+    currentBidderIndex = 0,
+    biddingOrder = [],
+    currentTrick = [],
+    trickWinnerId,
     onPlayCard,
     onSortHand,
-    onPassTurn,
+    onSubmitBid,
     onSettings,
 }: GameTableProps) {
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
@@ -59,9 +77,24 @@ export function GameTable({
     const otherPlayers = players.filter((p) => p.id !== myPlayerId);
     const myPlayer = players.find((p) => p.id === myPlayerId);
     const isMyTurn = currentPlayerId === myPlayerId;
+    const isBiddingPhase = phase === 'bidding';
+    const isTrickPhase = phase === 'trick' || phase === 'trick_end';
+    const isSpectator = myPlayer?.isSpectator ?? false;
+
+    // Bidding info
+    const currentBidderId = biddingOrder[currentBidderIndex];
+    const currentBidder = players.find(p => p.id === currentBidderId);
+    const isMyBidTurn = currentBidderId === myPlayerId;
+    const isLastBidder = currentBidderIndex === biddingOrder.length - 1;
+    const cardCount = myHand.length || 5;
+
+    // Get bids from players who have already bid
+    const otherPlayerBids = players
+        .filter(p => p.bid !== undefined && p.bid >= 0 && p.id !== myPlayerId)
+        .map(p => ({ name: p.name, bid: p.bid! }));
 
     const handlePlaySelected = () => {
-        if (selectedCardId) {
+        if (selectedCardId && !isSpectator) {
             onPlayCard?.(selectedCardId);
             setSelectedCardId(null);
         }
@@ -84,13 +117,24 @@ export function GameTable({
                     <div className="bg-slate-900/80 rounded-lg px-4 py-2">
                         <span className="text-slate-400">Round {round}</span>
                     </div>
+
+                    {/* Phase indicator */}
+                    <div className="bg-slate-900/80 rounded-lg px-4 py-2">
+                        <span className={`capitalize ${phase === 'bidding' ? 'text-amber-400' :
+                            phase === 'trick' ? 'text-green-400' :
+                                phase === 'game_over' ? 'text-red-400' :
+                                    'text-slate-400'
+                            }`}>
+                            {(phase ?? 'loading').replace('_', ' ')}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    {/* Pot size */}
+                    {/* Cards per round */}
                     <div className="bg-slate-900/80 rounded-lg px-4 py-2 flex items-center gap-2">
-                        <span className="text-slate-400 text-sm">POT SIZE</span>
-                        <span className="text-green-400 font-bold text-xl">{potSize.toLocaleString()}</span>
+                        <span className="text-slate-400 text-sm">CARDS</span>
+                        <span className="text-white font-bold text-xl">{cardCount}</span>
                     </div>
 
                     {/* Settings */}
@@ -124,8 +168,12 @@ export function GameTable({
                                 score={player.score}
                                 cardCount={player.cardCount}
                                 isCurrentTurn={player.id === currentPlayerId}
-                                status={player.id === currentPlayerId ? 'Playing...' : undefined}
+                                status={player.id === currentPlayerId ? (isBiddingPhase ? 'Bidding...' : 'Playing...') : undefined}
                                 size="md"
+                                lives={player.lives}
+                                bid={player.bid}
+                                tricksWon={player.tricksWon}
+                                isSpectator={player.isSpectator}
                             />
                         </div>
                     );
@@ -133,45 +181,35 @@ export function GameTable({
 
                 {/* Center Play Area */}
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    {/* Table felt circle */}
-                    <div className="w-72 h-72 rounded-full border-2 border-table-border/30 flex items-center justify-center gap-6">
-                        {/* Deck */}
-                        <div className="relative">
-                            <PlayingCard faceUp={false} size="md" />
-                            {deckCount > 1 && (
-                                <>
-                                    <div className="absolute top-1 left-1 w-full h-full rounded-xl bg-red-900/50 -z-10" />
-                                    <div className="absolute top-2 left-2 w-full h-full rounded-xl bg-red-900/30 -z-20" />
-                                </>
-                            )}
-                        </div>
-
-                        {/* Last played card */}
-                        {lastPlayedCard ? (
-                            <motion.div
-                                initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
-                                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                            >
-                                <PlayingCard card={lastPlayedCard} faceUp={true} size="md" />
-                            </motion.div>
-                        ) : (
-                            <div className="w-24 h-36 rounded-xl border-2 border-dashed border-table-border/50 flex items-center justify-center">
-                                <span className="text-table-border/50 text-sm">Play here</span>
+                    {isTrickPhase ? (
+                        <TrickArea
+                            trickCards={currentTrick}
+                            winnerId={trickWinnerId}
+                            showWinner={phase === 'trick_end'}
+                            deckCount={deckCount}
+                        />
+                    ) : (
+                        /* Default center area */
+                        <div className="w-72 h-72 rounded-full border-2 border-table-border/30 flex items-center justify-center gap-6">
+                            {/* Deck */}
+                            <div className="relative">
+                                <PlayingCard faceUp={false} size="md" />
+                                {deckCount > 1 && (
+                                    <>
+                                        <div className="absolute top-1 left-1 w-full h-full rounded-xl bg-red-900/50 -z-10" />
+                                        <div className="absolute top-2 left-2 w-full h-full rounded-xl bg-red-900/30 -z-20" />
+                                    </>
+                                )}
                             </div>
-                        )}
-                    </div>
 
-                    {/* Last played info */}
-                    {lastPlayedCard && lastPlayedBy && (
-                        <motion.div
-                            className="text-center mt-4"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            <p className="text-slate-400 text-sm">Last Played</p>
-                            <p className="text-white font-medium">{lastPlayedBy}</p>
-                        </motion.div>
+                            {/* Phase info */}
+                            <div className="text-center text-slate-400">
+                                {phase === 'dealing' && <p>Dealing cards...</p>}
+                                {phase === 'bidding' && <p>Bidding in progress...</p>}
+                                {phase === 'round_end' && <p>Round complete!</p>}
+                                {phase === 'game_over' && <p className="text-xl text-amber-400">Game Over!</p>}
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -179,72 +217,106 @@ export function GameTable({
                 {myPlayer && (
                     <div className="absolute bottom-6 left-6">
                         <div className="flex items-center gap-3 bg-slate-900/80 rounded-xl px-4 py-3">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isSpectator ? 'bg-slate-700' : 'bg-gradient-to-br from-blue-500 to-purple-500'
+                                }`}>
                                 <span className="text-white font-semibold">{myPlayer.name.charAt(0)}</span>
                             </div>
                             <div>
-                                <p className="text-white font-medium">You ({myPlayer.name})</p>
+                                <p className="text-white font-medium">
+                                    You ({myPlayer.name})
+                                    {isSpectator && <span className="ml-2 text-slate-400 text-sm">👁 Spectating</span>}
+                                </p>
+                                {/* Lives */}
+                                {myPlayer.lives !== undefined && (
+                                    <div className="flex gap-1">
+                                        {[...Array(3)].map((_, i) => (
+                                            <span key={i} className={i < (myPlayer.lives || 0) ? 'text-red-500' : 'text-slate-600'}>
+                                                ♥
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                {/* Bid info */}
+                                {myPlayer.bid !== undefined && myPlayer.bid >= 0 && (
+                                    <p className="text-amber-400 text-sm">
+                                        Bid: {myPlayer.bid} | Won: {myPlayer.tricksWon ?? 0}
+                                    </p>
+                                )}
                                 <p className="text-green-400 text-sm">Score: {myPlayer.score}</p>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
-                    <motion.button
-                        onClick={onSortHand}
-                        className="bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-lg px-6 py-3 flex items-center gap-2 transition-colors"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        <span>⇅</span>
-                        <span>Sort Hand</span>
-                    </motion.button>
+                {/* Action Buttons (only during trick phase and not spectating) */}
+                {isTrickPhase && !isSpectator && (
+                    <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                        <motion.button
+                            onClick={onSortHand}
+                            className="bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-lg px-6 py-3 flex items-center gap-2 transition-colors"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <span>⇅</span>
+                            <span>Sort Hand</span>
+                        </motion.button>
 
-                    <motion.button
-                        onClick={handlePlaySelected}
-                        disabled={!selectedCardId || !isMyTurn}
-                        className={`rounded-lg px-8 py-3 flex flex-col items-center gap-1 transition-all ${selectedCardId && isMyTurn
+                        <motion.button
+                            onClick={handlePlaySelected}
+                            disabled={!selectedCardId || !isMyTurn}
+                            className={`rounded-lg px-8 py-3 flex flex-col items-center gap-1 transition-all ${selectedCardId && isMyTurn
                                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
                                 : 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                            }`}
-                        whileHover={selectedCardId && isMyTurn ? { scale: 1.02 } : undefined}
-                        whileTap={selectedCardId && isMyTurn ? { scale: 0.98 } : undefined}
-                    >
-                        <div className="flex items-center gap-2">
-                            <span>▶</span>
-                            <span className="font-medium">Play Selected</span>
-                        </div>
-                        {selectedCardId && (
-                            <span className="text-xs text-green-300">SELECTED</span>
-                        )}
-                    </motion.button>
-
-                    <motion.button
-                        onClick={onPassTurn}
-                        disabled={!isMyTurn}
-                        className={`rounded-lg px-6 py-3 transition-all ${isMyTurn
-                                ? 'bg-slate-800/80 hover:bg-slate-700/80 text-white'
-                                : 'bg-slate-800/50 text-slate-500 cursor-not-allowed'
-                            }`}
-                        whileHover={isMyTurn ? { scale: 1.02 } : undefined}
-                        whileTap={isMyTurn ? { scale: 0.98 } : undefined}
-                    >
-                        Pass Turn
-                    </motion.button>
-                </div>
+                                }`}
+                            whileHover={selectedCardId && isMyTurn ? { scale: 1.02 } : undefined}
+                            whileTap={selectedCardId && isMyTurn ? { scale: 0.98 } : undefined}
+                        >
+                            <div className="flex items-center gap-2">
+                                <span>▶</span>
+                                <span className="font-medium">{isMyTurn ? 'Play Selected' : 'Wait for your turn'}</span>
+                            </div>
+                            {selectedCardId && (
+                                <span className="text-xs text-green-300">SELECTED</span>
+                            )}
+                        </motion.button>
+                    </div>
+                )}
 
                 {/* My Hand */}
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 pb-4">
-                    <CardFan
-                        cards={myHand}
-                        selectedCardId={selectedCardId}
-                        onSelectCard={(cardId) => setSelectedCardId(cardId)}
-                        spread={12}
-                    />
-                </div>
+                {!isSpectator && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 pb-4">
+                        <CardFan
+                            cards={myHand}
+                            selectedCardId={selectedCardId}
+                            onSelectCard={(cardId) => setSelectedCardId(cardId)}
+                            spread={12}
+                        />
+                    </div>
+                )}
+
+                {/* Spectator message */}
+                {isSpectator && (
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                        <div className="bg-slate-900/90 rounded-xl px-6 py-4 text-center">
+                            <p className="text-slate-400 text-lg">👁 You are spectating</p>
+                            <p className="text-slate-500 text-sm">Wait for the next game to join</p>
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Bidding Modal */}
+            <BiddingModal
+                isOpen={isBiddingPhase}
+                isMyTurn={isMyBidTurn}
+                currentBidderName={currentBidder?.name ?? ''}
+                cardCount={cardCount}
+                totalBidsSoFar={totalBidsSoFar}
+                isLastBidder={isLastBidder}
+                timerEndTime={bidTimerEnd ?? Date.now() + 10000}
+                otherPlayerBids={otherPlayerBids}
+                onSubmitBid={(bid) => onSubmitBid?.(bid)}
+            />
         </div>
     );
 }

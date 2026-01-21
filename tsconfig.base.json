@@ -6,8 +6,10 @@
         "lib": [
             "ES2022",
             "DOM",
-            "DOM.Iterable"
+            "DOM.Iterable",
+            "ESNext.Decorators"
         ],
+        "useDefineForClassFields": false,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "strict": true,

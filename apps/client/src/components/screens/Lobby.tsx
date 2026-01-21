@@ -18,6 +18,7 @@ interface LobbyProps {
     pointsToWin?: number;
     minPlayers?: number;
     onStartGame?: () => void;
+    onToggleReady?: () => void;
     onInviteFriends?: () => void;
     onLeave?: () => void;
     onPointsChange?: (points: number) => void;
@@ -30,8 +31,9 @@ export function Lobby({
     maxPlayers = 6,
     isHost = false,
     pointsToWin = 500,
-    minPlayers = 3,
+    minPlayers = 2,
     onStartGame,
+    onToggleReady,
     onInviteFriends,
     onLeave,
     onPointsChange,
@@ -158,6 +160,19 @@ export function Lobby({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
                     >
+                        {/* Ready Button (for non-host players) */}
+                        {!isHost && (
+                            <motion.button
+                                onClick={onToggleReady}
+                                className="btn-primary py-4 bg-amber-600 hover:bg-amber-700"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <span>✓</span>
+                                <span>Toggle Ready</span>
+                            </motion.button>
+                        )}
+
                         <motion.button
                             onClick={onInviteFriends}
                             className="btn-secondary py-4"
@@ -168,18 +183,30 @@ export function Lobby({
                             <span>Invite Friends</span>
                         </motion.button>
 
-                        <motion.button
-                            onClick={onStartGame}
-                            disabled={!canStart || !isHost}
-                            className={`py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart && isHost
+                        {isHost && (
+                            <motion.button
+                                onClick={onStartGame}
+                                disabled={!canStart}
+                                className={`py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart
                                     ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
                                     : 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                                }`}
-                            whileHover={canStart && isHost ? { scale: 1.02 } : undefined}
-                            whileTap={canStart && isHost ? { scale: 0.98 } : undefined}
+                                    }`}
+                                whileHover={canStart ? { scale: 1.02 } : undefined}
+                                whileTap={canStart ? { scale: 0.98 } : undefined}
+                            >
+                                <span>▶</span>
+                                <span>Start Game</span>
+                            </motion.button>
+                        )}
+
+                        <motion.button
+                            onClick={onLeave}
+                            className="btn-secondary py-3 text-red-400 hover:bg-red-500/10"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                         >
-                            <span>▶</span>
-                            <span>Start Game</span>
+                            <span>🚪</span>
+                            <span>Leave Room</span>
                         </motion.button>
 
                         {!canStart && (
