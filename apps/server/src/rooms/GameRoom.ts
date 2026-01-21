@@ -205,6 +205,9 @@ export class GameRoom extends Room<GameStateSchema> {
     // Remove card from hand
     const card = GameEngine.removeCardFromHand(player, cardId);
     if (!card) return;
+    
+    // Update public hand count
+    player.handCount = player.hand.length;
 
     console.log(`[GameRoom] Player ${player.name} plays ${card.value} of ${card.suit}`);
 
@@ -262,6 +265,9 @@ export class GameRoom extends Room<GameStateSchema> {
       this.state.currentCardCount,
       activePlayers
     );
+    
+    // Update deck count for clients
+    this.state.deckCount = this.state.deck.length;
 
     // Update all active player statuses
     this.state.players.forEach((player) => {

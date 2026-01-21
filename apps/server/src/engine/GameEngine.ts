@@ -55,6 +55,7 @@ export class GameEngine {
     // Clear all hands first
     for (const player of players.values()) {
       player.hand.clear();
+      player.handCount = 0;
       player.bid = -1;
       player.tricksWon = 0;
     }
@@ -72,8 +73,11 @@ export class GameEngine {
           }
         }
       }
+      // Update public hand count
+      player.handCount = player.hand.length;
     }
   }
+
 
   /**
    * Get the suit rank (Hearts=4, Diamonds=3, Clubs=2, Spades=1)

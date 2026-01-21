@@ -24,6 +24,7 @@ export class PlayerSchema extends Schema {
   @type('number') lives: number = 3;
   @type('number') score: number = 0;
   @type([CardSchema]) hand = new ArraySchema<CardSchema>();
+  @type('number') handCount: number = 0; // Public: visible to all clients
   @type('boolean') isHost: boolean = false;
   @type('number') connectedAt: number = 0;
   // Round-specific state
@@ -40,6 +41,7 @@ export class GameStateSchema extends Schema {
   @type('string') currentPlayerId: string = '';
   @type('number') round: number = 0;
   @type([CardSchema]) deck = new ArraySchema<CardSchema>();
+  @type('number') deckCount: number = 0; // Public: cards remaining
   @type([CardSchema]) discardPile = new ArraySchema<CardSchema>();
   @type('string') hostId: string = '';
   @type('number') createdAt: number = 0;
