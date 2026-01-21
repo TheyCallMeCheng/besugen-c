@@ -27,9 +27,8 @@ export function BiddingModal({
     const [timeLeft, setTimeLeft] = useState(10);
     const [selectedBid, setSelectedBid] = useState<number | null>(null);
 
-    // Calculate max bid
-    const remaining = cardCount - totalBidsSoFar;
-    const maxBid = isLastBidder ? Math.max(0, remaining - 1) : Math.max(0, remaining);
+    // Calculate max bid (capped by remaining tricks)
+    const maxBid = Math.max(0, cardCount - totalBidsSoFar);
 
     // Timer countdown
     useEffect(() => {
@@ -172,11 +171,7 @@ export function BiddingModal({
                                 {selectedBid !== null ? `Bid ${selectedBid} Trick${selectedBid !== 1 ? 's' : ''}` : 'Select a Bid'}
                             </motion.button>
 
-                            {isLastBidder && (
-                                <p className="text-amber-400 text-sm text-center mt-3">
-                                    ⚠️ As last bidder, you cannot make total bids equal {cardCount}
-                                </p>
-                            )}
+
                         </>
                     )}
 

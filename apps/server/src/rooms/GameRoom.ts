@@ -155,7 +155,7 @@ export class GameRoom extends Room<GameStateSchema> {
     
     // Validate bid
     if (!GameEngine.isValidBid(bid, this.state.currentCardCount, this.state.totalBids, isLastBidder)) {
-      // Invalid bid, default to max valid or 0
+      // Invalid bid, default to max valid (remaining tricks)
       const maxBid = GameEngine.calculateMaxBid(this.state.currentCardCount, this.state.totalBids, isLastBidder);
       bid = Math.min(Math.max(0, bid), maxBid);
     }

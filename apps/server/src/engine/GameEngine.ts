@@ -122,25 +122,16 @@ export class GameEngine {
   }
 
   /**
-   * Calculate the maximum bid a player can make
-   * - Total bids cannot exceed card count (except for non-last player)
-   * - Last bidder cannot make total equal to card count
+   * Calculate the maximum bid a player can make (limited by remaining tricks)
    */
   static calculateMaxBid(
     cardCount: number,
     totalBidsSoFar: number,
     isLastBidder: boolean
   ): number {
-    const remaining = cardCount - totalBidsSoFar;
-    
-    if (isLastBidder) {
-      // Last bidder cannot make total equal to card count
-      // They can bid 0 to (remaining - 1), but if remaining is 0, they must bid 0
-      return Math.max(0, remaining - 1);
-    }
-    
-    // Non-last bidders can bid up to remaining picks
-    return Math.max(0, remaining);
+    // Bid cannot exceed remaining available tricks
+    // Example: 5 cards, 3 bids so far. Max bid = 2.
+    return Math.max(0, cardCount - totalBidsSoFar);
   }
 
   /**
@@ -154,8 +145,12 @@ export class GameEngine {
   ): boolean {
     if (bid < 0) return false;
     
-    const maxBid = this.calculateMaxBid(cardCount, totalBidsSoFar, isLastBidder);
-    return bid <= maxBid;
+    // Bid cannot exceed remaining available tricks
+    if (totalBidsSoFar + bid > cardCount) {
+      return false;
+    }
+    
+    return true;
   }
 
   /**
