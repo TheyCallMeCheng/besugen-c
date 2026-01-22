@@ -116,7 +116,7 @@ function extractGameState(room: Room): GameState {
 
   return {
     phase: state.phase || 'lobby',
-    roomId: state.roomId || room.id || '',
+    roomId: state.roomId || room.roomId || '',
     round: state.round || 0,
     players,
     currentPlayerId: state.currentPlayerId || '',

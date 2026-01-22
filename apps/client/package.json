@@ -11,11 +11,12 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "framer-motion": "^10.16.16",
+        "@besugen/shared": "workspace:*",
+        "@discord/embedded-app-sdk": "^2.4.0",
         "colyseus.js": "0.16.5",
-        "@besugen/shared": "workspace:*"
+        "framer-motion": "^10.16.16",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     },
     "devDependencies": {
         "@types/react": "^18.2.43",

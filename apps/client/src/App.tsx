@@ -1,12 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainMenu, Lobby, GameTable } from './components/screens';
 import { useGameRoom } from './hooks/useGameRoom';
 
 type Screen = 'menu' | 'lobby' | 'game';
 
-function App() {
+interface DiscordContext {
+    isDiscord: boolean;
+    userName: string | null;
+    avatarUrl: string | null;
+}
+
+interface AppProps {
+    discordContext?: DiscordContext;
+}
+
+function App({ discordContext }: AppProps) {
     const [currentScreen, setCurrentScreen] = useState<Screen>('menu');
-    const [playerName, setPlayerName] = useState('');
+    // Use Discord username if available, otherwise empty for manual input
+    const [playerName, setPlayerName] = useState(discordContext?.userName || '');
     const [roomCodeInput, setRoomCodeInput] = useState('');
 
     const {
@@ -24,6 +35,13 @@ function App() {
         sortHand,
         isHost,
     } = useGameRoom();
+
+    // Update player name if Discord context becomes available
+    useEffect(() => {
+        if (discordContext?.userName && !playerName) {
+            setPlayerName(discordContext.userName);
+        }
+    }, [discordContext?.userName]);
 
     // Handle creating a new room
     const handleCreateRoom = async () => {

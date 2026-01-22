@@ -1,7 +1,21 @@
 import { Client, Room } from 'colyseus.js';
 
-// Colyseus server URL - defaults to localhost for development
-const COLYSEUS_URL = (import.meta as any).env?.VITE_COLYSEUS_URL || 'ws://localhost:2567';
+// Colyseus server URL
+// Uses protocol-relative URL that works via Vite's proxy in both:
+// - Local development (localhost:5173 → proxy to localhost:2567)
+// - Discord Activity (tunnel → Vite → proxy to Colyseus)
+function getColyseusUrl(): string {
+  // If custom URL is set, use it
+  if (import.meta.env.VITE_COLYSEUS_URL) {
+    return import.meta.env.VITE_COLYSEUS_URL;
+  }
+  
+  // In production/Discord, connect via same origin (Vite proxy handles routing)
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}`;
+}
+
+const COLYSEUS_URL = getColyseusUrl();
 
 class ColyseusService {
   private client: Client;
@@ -15,7 +29,7 @@ class ColyseusService {
     try {
       this.room = await this.client.create('game_room', { playerName });
       console.log('[Colyseus] Created room - Full object:', this.room);
-      console.log('[Colyseus] room.id:', this.room.id);
+      console.log('[Colyseus] room.id:', this.room.roomId);
       console.log('[Colyseus] room.roomId:', (this.room as any).roomId);
       console.log('[Colyseus] room.sessionId:', this.room.sessionId);
       console.log('[Colyseus] room.state:', this.room.state);
@@ -29,7 +43,7 @@ class ColyseusService {
   async joinRoom(roomId: string, playerName: string): Promise<Room> {
     try {
       this.room = await this.client.joinById(roomId, { playerName });
-      console.log('[Colyseus] Joined room:', this.room.id);
+      console.log('[Colyseus] Joined room:', this.room.roomId);
       return this.room;
     } catch (error) {
       console.error('[Colyseus] Failed to join room:', error);
@@ -40,7 +54,7 @@ class ColyseusService {
   async joinOrCreate(playerName: string): Promise<Room> {
     try {
       this.room = await this.client.joinOrCreate('game_room', { playerName });
-      console.log('[Colyseus] Joined or created room:', this.room.id);
+      console.log('[Colyseus] Joined or created room:', this.room.roomId);
       return this.room;
     } catch (error) {
       console.error('[Colyseus] Failed to join or create room:', error);
