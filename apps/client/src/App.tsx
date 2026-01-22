@@ -94,17 +94,33 @@ function App({ discordContext }: AppProps) {
                         </div>
                     )}
 
-                    {/* Player Name */}
-                    <div className="mb-6">
-                        <label className="block text-slate-400 text-sm mb-2">Your Name</label>
-                        <input
-                            type="text"
-                            value={playerName}
-                            onChange={(e) => setPlayerName(e.target.value)}
-                            placeholder="Enter your name..."
-                            className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                    </div>
+                    {/* Player Name - show Discord user or input field */}
+                    {discordContext?.isDiscord && discordContext.userName ? (
+                        <div className="mb-6 flex items-center gap-4 bg-slate-700/50 rounded-lg p-4">
+                            {discordContext.avatarUrl && (
+                                <img
+                                    src={discordContext.avatarUrl}
+                                    alt="Discord avatar"
+                                    className="w-12 h-12 rounded-full border-2 border-green-500"
+                                />
+                            )}
+                            <div>
+                                <p className="text-slate-400 text-sm">Playing as</p>
+                                <p className="text-white font-semibold text-lg">{discordContext.userName}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="mb-6">
+                            <label className="block text-slate-400 text-sm mb-2">Your Name</label>
+                            <input
+                                type="text"
+                                value={playerName}
+                                onChange={(e) => setPlayerName(e.target.value)}
+                                placeholder="Enter your name..."
+                                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                        </div>
+                    )}
 
                     {/* Create Room */}
                     <button

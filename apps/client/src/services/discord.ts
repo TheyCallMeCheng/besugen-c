@@ -72,7 +72,11 @@ export async function initializeDiscord(): Promise<void> {
     console.log('[Discord] Authorization code received');
 
     // Exchange the code for an access token via our server
-    const tokenResponse = await fetch('/api/token', {
+    // In Discord Activity, we need to use /.proxy/ prefix to route through Discord's URL mapping
+    const tokenEndpoint = '/.proxy/api/token';
+    console.log('[Discord] Calling token endpoint:', tokenEndpoint);
+    
+    const tokenResponse = await fetch(tokenEndpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -87,16 +91,26 @@ export async function initializeDiscord(): Promise<void> {
     const { access_token } = await tokenResponse.json();
 
     // Authenticate with Discord using the access token
-    await discordSdk.commands.authenticate({ access_token });
-    console.log('[Discord] Authenticated successfully');
+    // The authenticate command returns user info!
+    const authResult = await discordSdk.commands.authenticate({ access_token });
+    console.log('[Discord] Authenticated successfully, auth result:', authResult);
 
-    // Get the current user's participant info
-    const participants = await discordSdk.commands.getInstanceConnectedParticipants();
-    
-    // Find the current user (they should be in the participants list)
-    if (participants.participants.length > 0) {
-        discordUser = participants.participants[0];
-        console.log('[Discord] Current user:', discordUser.username);
+    // Store the user from the auth result
+    if (authResult.user) {
+        discordUser = authResult.user as any;
+        console.log('[Discord] User from auth:', {
+            id: discordUser?.id,
+            username: discordUser?.username,
+            global_name: (discordUser as any)?.global_name,
+        });
+    } else {
+        // Fallback: try getInstanceConnectedParticipants
+        console.log('[Discord] No user in auth result, trying getInstanceConnectedParticipants...');
+        const participants = await discordSdk.commands.getInstanceConnectedParticipants();
+        if (participants.participants.length > 0) {
+            discordUser = participants.participants[0];
+            console.log('[Discord] Current user from participants:', discordUser?.username);
+        }
     }
 }
 

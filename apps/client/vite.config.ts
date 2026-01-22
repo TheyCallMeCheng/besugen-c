@@ -28,9 +28,11 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/colyseus/, ''),
       },
       // Proxy API calls to server (for Discord token exchange, etc.)
+      // Rewrite to strip /api prefix, matching how Discord URL mapping works
       '/api': {
         target: 'http://localhost:2567',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },

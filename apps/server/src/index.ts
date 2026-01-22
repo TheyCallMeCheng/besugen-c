@@ -23,7 +23,8 @@ app.get('/health', (req, res) => {
 });
 
 // Discord OAuth token exchange endpoint
-app.post('/api/token', async (req, res) => {
+// Note: Discord URL mapping strips the prefix, so /.proxy/api/token arrives as /token
+app.post('/token', async (req, res) => {
   const { code } = req.body;
 
   if (!code) {
