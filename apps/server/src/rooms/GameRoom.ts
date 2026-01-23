@@ -13,6 +13,7 @@ export class GameRoom extends Room<GameStateSchema> {
   maxClients = GameConfig.MAX_PLAYERS;
   private bidTimer: Delayed | null = null;
   private trickResolveTimer: Delayed | null = null;
+  private lastRoundWinnerId: string = '';
 
   onCreate(options: RoomOptions) {
     this.setState(new GameStateSchema());
@@ -282,13 +283,17 @@ export class GameRoom extends Room<GameStateSchema> {
     this.state.biddingOrder.clear();
     
     let startingPlayerId: string;
-    if (this.state.round === 1 || !this.state.trickWinnerId) {
-      // First round or no winner yet - use rotation
+    if (this.state.round === 1) {
+      // First round - use rotation (or random) but usually index 0
+      startingPlayerId = activePlayers[0] ?? '';
+    } else if (this.lastRoundWinnerId && activePlayers.includes(this.lastRoundWinnerId)) {
+      // Use the winner of the previous round
+       startingPlayerId = this.lastRoundWinnerId;
+    } else {
+       // Fallback to rotation if no winner or winner left
+       // Just pick the next person in line relative to round number to be fair
       const startIndex = (this.state.round - 1) % activePlayers.length;
       startingPlayerId = activePlayers[startIndex] ?? activePlayers[0] ?? '';
-    } else {
-      // Subsequent rounds - last trick winner starts
-      startingPlayerId = this.state.trickWinnerId;
     }
     
     // Build bidding order starting from the chosen player
@@ -349,6 +354,9 @@ export class GameRoom extends Room<GameStateSchema> {
   }
 
   private startTrickPhase() {
+    // Capture the winner of the previous trick BEFORE clearing the state
+    const previousTrickWinner = this.state.trickWinnerId;
+
     this.state.trickNumber++;
     this.state.phase = GamePhase.TRICK;
     this.state.currentTrick.clear();
@@ -373,7 +381,7 @@ export class GameRoom extends Room<GameStateSchema> {
       this.state.currentPlayerId = this.state.biddingOrder[0] ?? activePlayers[0] ?? '';
     } else {
       // Winner of last trick starts
-      this.state.currentPlayerId = this.state.trickWinnerId || (this.state.biddingOrder[0] ?? '');
+      this.state.currentPlayerId = previousTrickWinner || (this.state.biddingOrder[0] ?? '');
     }
 
     // Broadcast trick start
@@ -464,6 +472,30 @@ export class GameRoom extends Room<GameStateSchema> {
       round: this.state.round,
       results,
     });
+
+    // Determine round winner (start next round)
+    // Winner is the player who made their bid with the highest score (highest bid)
+    // If multiple players made their bid with same value, pick the one earlier in turn order (or random/first found)
+    let bestBid = -1;
+    let winnerId = '';
+    
+    results.forEach(r => {
+      // Only consider players who made their bid (didn't lose a life)
+      if (!r.lostLife) {
+        if (r.bid > bestBid) {
+          bestBid = r.bid;
+          winnerId = r.playerId;
+        }
+      }
+    });
+
+    if (winnerId) {
+      console.log(`[GameRoom] Round winner is ${winnerId} with bid ${bestBid}`);
+      this.lastRoundWinnerId = winnerId;
+    } else {
+      console.log(`[GameRoom] No clear winner this round, maintaining standard rotation`);
+      this.lastRoundWinnerId = '';
+    }
 
     // Check if game is over
     if (this.checkGameOver()) {

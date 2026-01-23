@@ -73,17 +73,14 @@ export function BiddingModal({
     return (
         <AnimatePresence>
             <motion.div
-                className="fixed inset-0 z-50 flex items-start justify-center pt-8"
+                className="fixed inset-0 z-50 flex items-start justify-center pt-8 pointer-events-none"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
             >
-                {/* Backdrop - less opaque so cards are visible */}
-                <div className="absolute inset-0 bg-black/40" />
-
                 {/* Modal Content */}
                 <motion.div
-                    className="relative bg-slate-900/95 border border-slate-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
+                    className="relative bg-slate-900/95 border border-slate-700 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl pointer-events-auto"
                     initial={{ scale: 0.9, y: -20 }}
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: -20 }}
