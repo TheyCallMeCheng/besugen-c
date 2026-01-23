@@ -120,6 +120,7 @@ interface CardFanProps {
     selectedCardId?: string | null;
     onSelectCard?: (cardId: string) => void;
     spread?: number; // Angle spread in degrees
+    xSpacing?: number; // Horizontal spacing in pixels
 }
 
 export function CardFan({
@@ -127,14 +128,20 @@ export function CardFan({
     selectedCardId,
     onSelectCard,
     spread = 8,
+    xSpacing = 40,
 }: CardFanProps) {
     const totalSpread = spread * (cards.length - 1);
     const startAngle = -totalSpread / 2;
+
+    // Calculate total width to center the fan
+    const totalWidth = xSpacing * (cards.length - 1);
+    const startX = -totalWidth / 2;
 
     return (
         <div className="relative h-48 flex items-end justify-center">
             {cards.map((card, index) => {
                 const angle = startAngle + spread * index;
+                const x = startX + xSpacing * index;
                 const isSelected = selectedCardId === card.id;
                 const translateY = isSelected ? -20 : 0;
 
@@ -144,6 +151,7 @@ export function CardFan({
                         className="absolute origin-bottom"
                         style={{
                             rotate: `${angle}deg`,
+                            x: x,
                         }}
                         animate={{
                             y: translateY,

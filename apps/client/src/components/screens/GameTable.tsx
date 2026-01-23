@@ -288,7 +288,8 @@ export function GameTable({
                             cards={myHand}
                             selectedCardId={selectedCardId}
                             onSelectCard={(cardId) => setSelectedCardId(cardId)}
-                            spread={12}
+                            spread={5}
+                            xSpacing={30}
                         />
                     </div>
                 )}
