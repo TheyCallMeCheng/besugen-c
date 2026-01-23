@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { soundManager } from '../../utils/soundManager';
+
 
 // Truncate long names to max 25 characters
 const truncateName = (name: string, maxLength = 25) => {
@@ -44,12 +46,17 @@ export function BiddingModal({
             const now = Date.now();
             const remaining = Math.max(0, Math.ceil((timerEndTime - now) / 1000));
             setTimeLeft(remaining);
+
+            // Play warning sound at 3 seconds if it's your turn
+            if (remaining === 3 && isMyTurn) {
+                soundManager.play('timerWarning');
+            }
         };
 
         updateTimer();
         const interval = setInterval(updateTimer, 100);
         return () => clearInterval(interval);
-    }, [isOpen, timerEndTime]);
+    }, [isOpen, timerEndTime, isMyTurn]);
 
     // Reset selection when turn changes
     useEffect(() => {
@@ -58,6 +65,7 @@ export function BiddingModal({
 
     const handleSubmit = () => {
         if (selectedBid !== null) {
+            soundManager.play('bidSubmit');
             onSubmitBid(selectedBid);
         }
     };
@@ -140,7 +148,10 @@ export function BiddingModal({
                                     {bidOptions.map((bid) => (
                                         <motion.button
                                             key={bid}
-                                            onClick={() => setSelectedBid(bid)}
+                                            onClick={() => {
+                                                soundManager.play('buttonClick');
+                                                setSelectedBid(bid);
+                                            }}
                                             className={`
                                                 w-14 h-14 rounded-xl text-xl font-bold transition-all
                                                 ${selectedBid === bid

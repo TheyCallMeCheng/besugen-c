@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PlayerAvatar, PlayingCard, CardFan, BiddingModal, TrickArea, type CardData, type TrickCardData } from '../ui';
+import { soundManager } from '../../utils/soundManager';
+
 
 interface Player {
     id: string;
@@ -72,6 +74,7 @@ export function GameTable({
     onSettings,
 }: GameTableProps) {
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+    const prevIsMyTurnRef = useRef(false);
 
     // Get other players (not me)
     const otherPlayers = players.filter((p) => p.id !== myPlayerId);
@@ -80,6 +83,14 @@ export function GameTable({
     const isBiddingPhase = phase === 'bidding';
     const isTrickPhase = phase === 'trick' || phase === 'trick_end';
     const isSpectator = myPlayer?.isSpectator ?? false;
+
+    // Play sound when it becomes your turn
+    useEffect(() => {
+        if (isMyTurn && !prevIsMyTurnRef.current && isTrickPhase && !isSpectator) {
+            soundManager.play('turnStart');
+        }
+        prevIsMyTurnRef.current = isMyTurn;
+    }, [isMyTurn, isTrickPhase, isSpectator]);
 
     // Bidding info
     const currentBidderId = biddingOrder[currentBidderIndex];
@@ -95,6 +106,7 @@ export function GameTable({
 
     const handlePlaySelected = () => {
         if (selectedCardId && !isSpectator) {
+            soundManager.play('cardPlay');
             onPlayCard?.(selectedCardId);
             setSelectedCardId(null);
         }
@@ -252,7 +264,10 @@ export function GameTable({
                 {isTrickPhase && !isSpectator && (
                     <div className="absolute bottom-64 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
                         <motion.button
-                            onClick={onSortHand}
+                            onClick={() => {
+                                soundManager.play('sortHand');
+                                onSortHand?.();
+                            }}
                             className="bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-lg px-6 py-3 flex items-center gap-2 transition-colors"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}

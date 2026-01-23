@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { soundManager } from '../../utils/soundManager';
+
 
 // Card suits and their colors
 const SUIT_SYMBOLS: Record<string, string> = {
@@ -163,7 +165,10 @@ export function CardFan({
                             faceUp={true}
                             selected={isSelected}
                             selectable={true}
-                            onClick={() => onSelectCard?.(card.id)}
+                            onClick={() => {
+                                soundManager.play('cardSelect');
+                                onSelectCard?.(card.id);
+                            }}
                             size="lg"
                         />
                     </motion.div>

@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { soundManager } from '../../utils/soundManager';
+
 
 // Floating card decoration icons
 function FloatingCard({
@@ -127,7 +129,10 @@ export function MainMenu({
                     >
                         {/* Play with Friends - Primary action */}
                         <motion.button
-                            onClick={onPlayWithFriends}
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onPlayWithFriends?.();
+                            }}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 py-4 flex items-center justify-between transition-all shadow-lg shadow-blue-500/20"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -146,7 +151,10 @@ export function MainMenu({
 
                         {/* Play Online - Secondary action */}
                         <motion.button
-                            onClick={onPlayOnline}
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onPlayOnline?.();
+                            }}
                             className="w-full bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl px-6 py-4 flex items-center justify-between transition-all border border-slate-700/50"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -166,7 +174,10 @@ export function MainMenu({
                         {/* Settings and Ranking row */}
                         <div className="flex gap-4">
                             <motion.button
-                                onClick={onSettings}
+                                onClick={() => {
+                                    soundManager.play('buttonClick');
+                                    onSettings?.();
+                                }}
                                 className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-slate-700/50"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -176,7 +187,10 @@ export function MainMenu({
                             </motion.button>
 
                             <motion.button
-                                onClick={onRanking}
+                                onClick={() => {
+                                    soundManager.play('buttonClick');
+                                    onRanking?.();
+                                }}
                                 className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-slate-700/50"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}

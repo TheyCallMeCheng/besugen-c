@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { PlayerAvatar, EmptyPlayerSlot } from '../ui';
+import { soundManager } from '../../utils/soundManager';
+
 
 interface Player {
     id: string;
@@ -50,6 +52,7 @@ export function Lobby({
     };
 
     const handleCopyRoomCode = () => {
+        soundManager.play('buttonClick');
         onCopyRoomCode?.();
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -170,7 +173,10 @@ export function Lobby({
                         {/* Ready Button (for non-host players) */}
                         {!isHost && (
                             <motion.button
-                                onClick={onToggleReady}
+                                onClick={() => {
+                                    soundManager.play('buttonClick');
+                                    onToggleReady?.();
+                                }}
                                 className="btn-primary py-4 bg-amber-600 hover:bg-amber-700"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
@@ -181,7 +187,10 @@ export function Lobby({
                         )}
 
                         <motion.button
-                            onClick={onInviteFriends}
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onInviteFriends?.();
+                            }}
                             className="btn-secondary py-4"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -192,7 +201,12 @@ export function Lobby({
 
                         {isHost && (
                             <motion.button
-                                onClick={onStartGame}
+                                onClick={() => {
+                                    if (canStart) {
+                                        soundManager.play('buttonClick');
+                                        onStartGame?.();
+                                    }
+                                }}
                                 disabled={!canStart}
                                 className={`py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart
                                     ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
@@ -207,7 +221,10 @@ export function Lobby({
                         )}
 
                         <motion.button
-                            onClick={onLeave}
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onLeave?.();
+                            }}
                             className="btn-secondary py-3 text-red-400 hover:bg-red-500/10"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
