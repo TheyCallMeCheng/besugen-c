@@ -24,7 +24,6 @@ interface LobbyProps {
     onInviteFriends?: () => void;
     onLeave?: () => void;
     onPointsChange?: (points: number) => void;
-    onCopyRoomCode?: () => void;
 }
 
 export function Lobby({
@@ -37,18 +36,9 @@ export function Lobby({
     onToggleReady,
     onInviteFriends,
     onLeave,
-    onCopyRoomCode,
 }: LobbyProps) {
-    const [copied, setCopied] = useState(false);
     const emptySlots = maxPlayers - players.length;
     const canStart = players.length >= minPlayers;
-
-    const handleCopyRoomCode = () => {
-        soundManager.play('buttonClick');
-        onCopyRoomCode?.();
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
 
     return (
         <div className="min-h-screen bg-lobby flex flex-col">
@@ -71,16 +61,9 @@ export function Lobby({
                 </div>
 
                 {/* Room Code */}
-                <motion.button
-                    onClick={handleCopyRoomCode}
-                    className={`flex items-center gap-3 rounded-lg px-4 py-2 transition-colors focus:outline-none ${copied ? 'bg-green-600' : 'bg-slate-800 hover:bg-slate-700'}`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                >
-                    <span className={`text-sm ${copied ? 'text-white font-medium' : 'text-slate-400'}`}>{copied ? 'COPIED!' : 'ROOM CODE'}</span>
-                    <span className="font-mono text-white font-semibold tracking-wider">{roomCode}</span>
-                    <span className={copied ? 'text-white' : 'text-slate-500'}>{copied ? '✓' : '📋'}</span>
-                </motion.button>
+                <div className="bg-slate-800/50 rounded-lg px-6 py-3 border border-slate-700/50">
+                    <span className="font-mono text-white font-bold tracking-widest text-xl select-all">{roomCode}</span>
+                </div>
             </header>
 
             {/* Main Content */}

@@ -143,3 +143,22 @@ export function getDiscordAvatarUrl(): string | null {
     if (!discordUser?.avatar) return null;
     return `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`;
 }
+/**
+ * Share the activity with others via Discord's native share modal
+ */
+export async function shareActivity(roomId: string) {
+    if (!discordSdk) {
+        throw new Error('Discord SDK not initialized');
+    }
+
+    try {
+        await discordSdk.commands.shareLink({
+            message: `Join me in Besugen! Room Code: ${roomId}`,
+            custom_id: roomId, // Can be used for deep linking
+        });
+        console.log('[Discord] Shared activity link');
+    } catch (error) {
+        console.error('[Discord] Failed to share activity:', error);
+        throw error;
+    }
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MainMenu, Lobby, GameTable } from './components/screens';
 import { SettingsModal } from './components/ui';
 import { useGameRoom } from './hooks/useGameRoom';
+import { shareActivity, isDiscordActivity } from './services/discord';
 
 type Screen = 'home' | 'menu' | 'lobby' | 'game';
 
@@ -194,6 +195,14 @@ function App({ discordContext }: AppProps) {
                 isReady: p.status === 'ready',
             }));
 
+            const handleShare = async () => {
+                if (isDiscordActivity()) {
+                    await shareActivity(room.roomId);
+                } else {
+                    await navigator.clipboard.writeText(room.roomId);
+                }
+            };
+
             return (
                 <Lobby
                     roomCode={room.roomId}
@@ -203,8 +212,8 @@ function App({ discordContext }: AppProps) {
                     minPlayers={2}
                     onStartGame={sendStartGame}
                     onToggleReady={sendReady}
+                    onInviteFriends={handleShare}
                     onLeave={handleLeave}
-                    onCopyRoomCode={() => navigator.clipboard.writeText(room.roomId)}
                 />
             );
         }
