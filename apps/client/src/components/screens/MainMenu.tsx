@@ -2,38 +2,61 @@ import { motion } from 'framer-motion';
 import { soundManager } from '../../utils/soundManager';
 
 
-// Floating card decoration icons
+// Floating card decoration icons with glow effect
 function FloatingCard({
     icon,
     className,
     delay = 0,
+    rotation = 0,
+    size = 'text-8xl',
 }: {
     icon: string;
     className: string;
     delay?: number;
+    rotation?: number;
+    size?: string;
 }) {
     return (
         <motion.div
-            className={`absolute text-blue-500/20 ${className}`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            className={`absolute ${className}`}
+            style={{
+                filter: 'blur(0.5px) drop-shadow(0 0 20px rgba(99, 130, 255, 0.4))',
+            }}
+            initial={{ opacity: 0, scale: 0.8, rotate: rotation }}
+            animate={{ opacity: 1, scale: 1, rotate: rotation }}
             transition={{ duration: 0.6, delay }}
         >
             <motion.div
-                animate={{ y: [0, -10, 0], rotate: [0, 2, 0] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay }}
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay }}
             >
-                <span className="text-6xl">{icon}</span>
+                <span
+                    className={`${size} text-[#4a5d8a]/50`}
+                    style={{ textShadow: '0 0 30px rgba(99, 130, 255, 0.5)' }}
+                >
+                    {icon}
+                </span>
             </motion.div>
         </motion.div>
     );
 }
 
-// Logo icon
+// Logo icon with glow halo
 function LogoIcon() {
     return (
-        <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
-            <span className="text-white text-4xl">🂠</span>
+        <div className="relative mb-6">
+            {/* Glow halo behind the logo */}
+            <div
+                className="absolute inset-0 w-20 h-20 rounded-2xl"
+                style={{
+                    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.6) 0%, transparent 70%)',
+                    transform: 'scale(1.5)',
+                    filter: 'blur(15px)',
+                }}
+            />
+            <div className="relative w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/40">
+                <span className="text-white text-4xl">🂠</span>
+            </div>
         </div>
     );
 }
@@ -57,15 +80,22 @@ export function MainMenu({
 }: MainMenuProps) {
     return (
         <div className="min-h-screen bg-main-menu relative overflow-hidden">
-            {/* Floating decorations */}
-            <FloatingCard icon="🂡" className="top-24 left-16" delay={0} />
-            <FloatingCard icon="🃏" className="top-32 right-24" delay={0.5} />
-            <FloatingCard icon="♥" className="bottom-32 left-24" delay={1} />
-            <FloatingCard icon="🎰" className="bottom-24 right-16" delay={1.5} />
+            {/* Radial gradient vignette overlay - darker edges, lighter center */}
+            <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    background: 'radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(10, 15, 30, 0.4) 70%, rgba(5, 8, 20, 0.7) 100%)',
+                }}
+            />
+
+            {/* Floating decorations - card suit symbols, closer to center */}
+            <FloatingCard icon="♠" className="top-24 left-[15%]" delay={0} rotation={-12} size="text-8xl" />
+            <FloatingCard icon="♦" className="top-28 right-[15%]" delay={0.5} rotation={8} size="text-8xl" />
+            <FloatingCard icon="♥" className="bottom-32 left-[18%]" delay={1} rotation={-8} size="text-8xl" />
+            <FloatingCard icon="♣" className="bottom-28 right-[18%]" delay={1.5} rotation={10} size="text-8xl" />
 
             {/* Header */}
-            <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center">
-                <span className="text-white/50 text-sm font-medium tracking-wide">DISCORD ACTIVITY</span>
+            <header className="absolute top-0 left-0 right-0 p-6 flex justify-end items-center">
 
                 {/* Player profile badge */}
                 <motion.div
@@ -205,10 +235,12 @@ export function MainMenu({
 
             {/* Footer */}
             <footer className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex justify-center items-center gap-6 text-slate-500 text-sm">
+                <div className="flex justify-center items-center gap-4 text-slate-500 text-sm">
                     <button className="hover:text-white transition-colors">How to Play</button>
                     <span>•</span>
                     <button className="hover:text-white transition-colors">Credits</button>
+                    <span>•</span>
+                    <button className="hover:text-white transition-colors">Privacy Policy</button>
                     <span>•</span>
                     <span>v1.0.2</span>
                 </div>
