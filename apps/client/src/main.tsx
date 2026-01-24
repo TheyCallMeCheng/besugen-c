@@ -16,7 +16,6 @@ async function main() {
         userName: null,
         avatarUrl: null,
     };
-
     // Check if we're running as a Discord Activity
     if (isDiscordActivity()) {
         console.log('[Main] Running as Discord Activity, initializing SDK...');

@@ -1,18 +1,23 @@
 import { Client, Room } from 'colyseus.js';
+import { isDiscordActivity } from './discord';
 
 // Colyseus server URL
 // Uses protocol-relative URL that works via Vite's proxy in both:
 // - Local development (localhost:5173 → proxy to localhost:2567)
 // - Discord Activity (tunnel → Vite → proxy to Colyseus)
 function getColyseusUrl(): string {
-  // If custom URL is set, use it
-  if (import.meta.env.VITE_COLYSEUS_URL) {
+  // Development, we take the backend URL from env
+  if (!isDiscordActivity()) {
     return import.meta.env.VITE_COLYSEUS_URL;
   }
-  
-  // In production/Discord, connect via same origin (Vite proxy handles routing)
+
+  // Production/Discord, connect via same origin (Vite proxy handles routing)
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  console.log("PROTOCOL", protocol)
+
   return `${protocol}//${window.location.host}`;
+  
+
 }
 
 const COLYSEUS_URL = getColyseusUrl();
