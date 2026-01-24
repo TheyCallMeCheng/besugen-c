@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { MainMenu, Lobby, GameTable } from './components/screens';
 import { useGameRoom } from './hooks/useGameRoom';
 
-type Screen = 'menu' | 'lobby' | 'game';
+type Screen = 'home' | 'menu' | 'lobby' | 'game';
 
 interface DiscordContext {
     isDiscord: boolean;
@@ -15,7 +15,7 @@ interface AppProps {
 }
 
 function App({ discordContext }: AppProps) {
-    const [currentScreen, setCurrentScreen] = useState<Screen>('menu');
+    const [currentScreen, setCurrentScreen] = useState<Screen>('home');
     // Use Discord username if available, otherwise empty for manual input
     const [playerName, setPlayerName] = useState(discordContext?.userName || '');
     const [roomCodeInput, setRoomCodeInput] = useState('');
@@ -63,7 +63,7 @@ function App({ discordContext }: AppProps) {
     // Handle leaving the room
     const handleLeave = () => {
         leaveRoom();
-        setCurrentScreen('menu');
+        setCurrentScreen('home');
     };
 
     // Navigate to game screen when game starts (phase changes from lobby)
@@ -75,17 +75,49 @@ function App({ discordContext }: AppProps) {
         setTimeout(() => setCurrentScreen('game'), 0);
     }
 
-    // Main Menu
+    // Home Screen - Main Menu with navigation
+    if (currentScreen === 'home') {
+        return (
+            <MainMenu
+                playerName={playerName || discordContext?.userName || 'Player'}
+                playerLevel={12}
+                onPlayWithFriends={() => setCurrentScreen('menu')}
+                onPlayOnline={() => {
+                    // TODO: Implement online matchmaking
+                    console.log('Play Online clicked');
+                }}
+                onSettings={() => {
+                    // TODO: Implement settings
+                    console.log('Settings clicked');
+                }}
+                onRanking={() => {
+                    // TODO: Implement ranking
+                    console.log('Ranking clicked');
+                }}
+            />
+        );
+    }
+
+    // Create/Join Room Menu
     if (currentScreen === 'menu') {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
                 <div className="bg-slate-800/80 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl border border-slate-700">
+                    {/* Back button */}
+                    <button
+                        onClick={() => setCurrentScreen('home')}
+                        className="mb-4 text-slate-400 hover:text-white transition-colors flex items-center gap-2"
+                    >
+                        <span>←</span>
+                        <span>Back to Menu</span>
+                    </button>
+
                     <div className="text-center mb-8">
                         <div className="w-20 h-20 bg-green-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                             <span className="text-4xl">🂠</span>
                         </div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Besugen</h1>
-                        <p className="text-slate-400">Trick-taking card game</p>
+                        <h1 className="text-3xl font-bold text-white mb-2">Play with Friends</h1>
+                        <p className="text-slate-400">Create or join a private room</p>
                     </div>
 
                     {error && (
