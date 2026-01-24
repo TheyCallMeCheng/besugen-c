@@ -32,24 +32,16 @@ export function Lobby({
     players,
     maxPlayers = 6,
     isHost = false,
-    pointsToWin = 500,
     minPlayers = 2,
     onStartGame,
     onToggleReady,
     onInviteFriends,
     onLeave,
-    onPointsChange,
     onCopyRoomCode,
 }: LobbyProps) {
-    const [localPoints, setLocalPoints] = useState(pointsToWin);
     const [copied, setCopied] = useState(false);
     const emptySlots = maxPlayers - players.length;
     const canStart = players.length >= minPlayers;
-
-    const handlePointsChange = (value: number) => {
-        setLocalPoints(value);
-        onPointsChange?.(value);
-    };
 
     const handleCopyRoomCode = () => {
         soundManager.play('buttonClick');
@@ -119,127 +111,82 @@ export function Lobby({
                     </div>
                 </motion.div>
 
-                {/* Bottom Section: Settings + Actions */}
-                <div className="flex gap-6 w-full max-w-3xl">
-                    {/* Game Settings */}
-                    <motion.div
-                        className="card-panel p-6 flex-1"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                    >
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2">
-                                <span>⚙️</span>
-                                <h2 className="text-white font-semibold">Game Settings</h2>
-                            </div>
-                            {isHost && (
-                                <span className="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded">HOST ONLY</span>
-                            )}
-                        </div>
+                {/* Action Buttons */}
+                <motion.div
+                    className="flex flex-col gap-4 w-full max-w-sm"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    {/* Ready Button (for non-host players) */}
+                    {!isHost && (
+                        <motion.button
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onToggleReady?.();
+                            }}
+                            className="btn-primary py-4 bg-amber-600 hover:bg-amber-700"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <span>✓</span>
+                            <span>Toggle Ready</span>
+                        </motion.button>
+                    )}
 
-                        {/* Points to Win Slider */}
-                        <div>
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-slate-400">Points to Win</span>
-                                <span className="text-white font-semibold text-xl">{localPoints}</span>
-                            </div>
-                            <input
-                                type="range"
-                                min={250}
-                                max={2000}
-                                step={250}
-                                value={localPoints}
-                                onChange={(e) => handlePointsChange(Number(e.target.value))}
-                                disabled={!isHost}
-                                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-                            <div className="flex justify-between text-xs text-slate-500 mt-2">
-                                <span>250</span>
-                                <span>500</span>
-                                <span>1000</span>
-                                <span>2000</span>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* Action Buttons */}
-                    <motion.div
-                        className="flex flex-col gap-4 w-64"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
+                    <motion.button
+                        onClick={() => {
+                            soundManager.play('buttonClick');
+                            onInviteFriends?.();
+                        }}
+                        className="btn-secondary py-4"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                     >
-                        {/* Ready Button (for non-host players) */}
-                        {!isHost && (
-                            <motion.button
-                                onClick={() => {
+                        <span>🔗</span>
+                        <span>Invite Friends</span>
+                    </motion.button>
+
+                    {isHost && (
+                        <motion.button
+                            onClick={() => {
+                                if (canStart) {
                                     soundManager.play('buttonClick');
-                                    onToggleReady?.();
-                                }}
-                                className="btn-primary py-4 bg-amber-600 hover:bg-amber-700"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                <span>✓</span>
-                                <span>Toggle Ready</span>
-                            </motion.button>
-                        )}
-
-                        <motion.button
-                            onClick={() => {
-                                soundManager.play('buttonClick');
-                                onInviteFriends?.();
+                                    onStartGame?.();
+                                }
                             }}
-                            className="btn-secondary py-4"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                            disabled={!canStart}
+                            className={`py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart
+                                ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
+                                : 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                                }`}
+                            whileHover={canStart ? { scale: 1.02 } : undefined}
+                            whileTap={canStart ? { scale: 0.98 } : undefined}
                         >
-                            <span>🔗</span>
-                            <span>Invite Friends</span>
+                            <span>▶</span>
+                            <span>Start Game</span>
                         </motion.button>
+                    )}
 
-                        {isHost && (
-                            <motion.button
-                                onClick={() => {
-                                    if (canStart) {
-                                        soundManager.play('buttonClick');
-                                        onStartGame?.();
-                                    }
-                                }}
-                                disabled={!canStart}
-                                className={`py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart
-                                    ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
-                                    : 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                                    }`}
-                                whileHover={canStart ? { scale: 1.02 } : undefined}
-                                whileTap={canStart ? { scale: 0.98 } : undefined}
-                            >
-                                <span>▶</span>
-                                <span>Start Game</span>
-                            </motion.button>
-                        )}
+                    <motion.button
+                        onClick={() => {
+                            soundManager.play('buttonClick');
+                            onLeave?.();
+                        }}
+                        className="btn-secondary py-3 text-red-400 hover:bg-red-500/10"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
+                        <span>🚪</span>
+                        <span>Leave Room</span>
+                    </motion.button>
 
-                        <motion.button
-                            onClick={() => {
-                                soundManager.play('buttonClick');
-                                onLeave?.();
-                            }}
-                            className="btn-secondary py-3 text-red-400 hover:bg-red-500/10"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <span>🚪</span>
-                            <span>Leave Room</span>
-                        </motion.button>
-
-                        {!canStart && (
-                            <p className="text-center text-slate-500 text-sm">
-                                ⚠️ Minimum {minPlayers} players required
-                            </p>
-                        )}
-                    </motion.div>
-                </div>
+                    {!canStart && (
+                        <p className="text-center text-slate-500 text-sm">
+                            ⚠️ Minimum {minPlayers} players required
+                        </p>
+                    )}
+                </motion.div>
             </main>
         </div>
     );
