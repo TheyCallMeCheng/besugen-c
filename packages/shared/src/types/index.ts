@@ -1,4 +1,4 @@
-import type { GamePhaseType, PlayerStatusType, SuitType, CardValueType } from '../constants';
+import type { GamePhaseType, PlayerStatusType, SuitType, CardValueType } from '../constants/index.js';
 
 // Card types
 export interface Card {
