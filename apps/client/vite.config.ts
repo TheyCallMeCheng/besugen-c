@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   // Load .env from project root (../../ from apps/client)
   envDir: path.resolve(__dirname, '../..'),
@@ -11,9 +11,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  esbuild: {
+    // Strip console.log/debug from production builds; keep console.error/warn
+    pure: mode === 'production' ? ['console.log', 'console.debug'] : [],
+  },
   server: {
     port: 5173,
-    allowedHosts: true, // TODO: Remove in production - allows cloudflare tunnel access
+    allowedHosts: true,
     proxy: {
       // Proxy Colyseus matchmaking API (HTTP POST for room create/join)
       '/matchmake': {
@@ -40,4 +44,4 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
-});
+}));

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/index.css';
+import { ErrorBoundary } from './components/ui';
 import { isDiscordActivity, initializeDiscord, getDiscordDisplayName, getDiscordAvatarUrl } from './services/discord';
 
 interface DiscordContext {
@@ -38,7 +39,9 @@ async function main() {
     // Render the app
     ReactDOM.createRoot(document.getElementById('root')!).render(
         <React.StrictMode>
-            <App discordContext={discordContext} />
+            <ErrorBoundary>
+                <App discordContext={discordContext} />
+            </ErrorBoundary>
         </React.StrictMode>
     );
 }

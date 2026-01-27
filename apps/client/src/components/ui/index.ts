@@ -4,3 +4,4 @@ export { PlayerAvatar, EmptyPlayerSlot } from './PlayerAvatar';
 export { BiddingModal } from './BiddingModal';
 export * from './TrickArea';
 export * from './SettingsModal';
+export * from './ErrorBoundary';

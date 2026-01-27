@@ -8,6 +8,7 @@ import {
 import { GamePhase, GameConfig, PlayerStatus } from '@besugen/shared';
 import type { RoomOptions } from '@besugen/shared';
 import { GameEngine } from '../engine/GameEngine.js';
+import { logger } from '../logger.js';
 
 export class GameRoom extends Room<GameStateSchema> {
   maxClients = GameConfig.MAX_PLAYERS;
@@ -21,7 +22,7 @@ export class GameRoom extends Room<GameStateSchema> {
     this.state.createdAt = Date.now();
     this.state.phase = GamePhase.LOBBY;
 
-    console.log(`[GameRoom] Room ${this.roomId} created`);
+    logger.log(`[GameRoom] Room ${this.roomId} created`);
 
     // Set up message handlers
     this.onMessage('ready', (client, message) => {
@@ -42,8 +43,8 @@ export class GameRoom extends Room<GameStateSchema> {
   }
 
   onJoin(client: Client, options: RoomOptions) {
-    console.log(`[GameRoom] onJoin called - Player ${client.sessionId} joining room ${this.roomId}`);
-    console.log(`[GameRoom] Options:`, options);
+    logger.log(`[GameRoom] onJoin called - Player ${client.sessionId} joining room ${this.roomId}`);
+    logger.log(`[GameRoom] Options:`, options);
 
     const player = new PlayerSchema();
     player.id = client.sessionId;
@@ -64,12 +65,12 @@ export class GameRoom extends Room<GameStateSchema> {
 
     this.state.players.set(client.sessionId, player);
     
-    console.log(`[GameRoom] Player added! Players count: ${this.state.players.size}`);
-    console.log(`[GameRoom] Player keys:`, Array.from(this.state.players.keys()));
+    logger.log(`[GameRoom] Player added! Players count: ${this.state.players.size}`);
+    logger.log(`[GameRoom] Player keys:`, Array.from(this.state.players.keys()));
   }
 
   onLeave(client: Client, consented: boolean) {
-    console.log(`[GameRoom] Player ${client.sessionId} left room ${this.roomId}`);
+    logger.log(`[GameRoom] Player ${client.sessionId} left room ${this.roomId}`);
 
     const player = this.state.players.get(client.sessionId);
     
@@ -97,7 +98,7 @@ export class GameRoom extends Room<GameStateSchema> {
   }
 
   onDispose() {
-    console.log(`[GameRoom] Room ${this.roomId} disposing`);
+    logger.log(`[GameRoom] Room ${this.roomId} disposing`);
     if (this.bidTimer) {
       this.bidTimer.clear();
     }
@@ -127,7 +128,7 @@ export class GameRoom extends Room<GameStateSchema> {
     );
 
     if (readyPlayers.length >= GameConfig.MIN_PLAYERS) {
-      console.log(`[GameRoom] Game started in room ${this.roomId}`);
+      logger.log(`[GameRoom] Game started in room ${this.roomId}`);
       this.state.startedAt = Date.now();
       this.state.round = 0;
       this.state.cardCountIndex = 0;
@@ -145,7 +146,7 @@ export class GameRoom extends Room<GameStateSchema> {
 
     const currentBidderId = this.state.biddingOrder[this.state.currentBidderIndex];
     if (client.sessionId !== currentBidderId) {
-      console.log(`[GameRoom] Not ${client.sessionId}'s turn to bid`);
+      logger.log(`[GameRoom] Not ${client.sessionId}'s turn to bid`);
       return;
     }
 
@@ -161,7 +162,7 @@ export class GameRoom extends Room<GameStateSchema> {
       bid = Math.min(Math.max(0, bid), maxBid);
     }
 
-    console.log(`[GameRoom] Player ${player.name} bids ${bid}`);
+    logger.log(`[GameRoom] Player ${player.name} bids ${bid}`);
     
     player.bid = bid;
     this.state.totalBids += bid;
@@ -190,7 +191,7 @@ export class GameRoom extends Room<GameStateSchema> {
     }
 
     if (client.sessionId !== this.state.currentPlayerId) {
-      console.log(`[GameRoom] Not ${client.sessionId}'s turn to play`);
+      logger.log(`[GameRoom] Not ${client.sessionId}'s turn to play`);
       return;
     }
 
@@ -199,7 +200,7 @@ export class GameRoom extends Room<GameStateSchema> {
 
     // Validate player has the card
     if (!GameEngine.playerHasCard(player, cardId)) {
-      console.log(`[GameRoom] Player doesn't have card ${cardId}`);
+      logger.log(`[GameRoom] Player doesn't have card ${cardId}`);
       return;
     }
 
@@ -210,7 +211,7 @@ export class GameRoom extends Room<GameStateSchema> {
     // Update public hand count
     player.handCount = player.hand.length;
 
-    console.log(`[GameRoom] Player ${player.name} plays ${card.value} of ${card.suit}`);
+    logger.log(`[GameRoom] Player ${player.name} plays ${card.value} of ${card.suit}`);
 
     // Add card to current trick
     const trickCard = new TrickCardSchema();
@@ -243,7 +244,7 @@ export class GameRoom extends Room<GameStateSchema> {
     this.state.totalBids = 0;
     // Note: Don't clear trickWinnerId here - we need it to determine bidding order
     
-    console.log(`[GameRoom] Starting round ${this.state.round} with ${this.state.currentCardCount} cards`);
+    logger.log(`[GameRoom] Starting round ${this.state.round} with ${this.state.currentCardCount} cards`);
 
     // Create and shuffle deck
     this.state.deck = GameEngine.createDeck();
@@ -325,7 +326,7 @@ export class GameRoom extends Room<GameStateSchema> {
     this.state.currentPlayerId = currentBidderId;
     this.state.bidTimerEnd = Date.now() + GameConfig.BID_TIMEOUT_MS;
 
-    console.log(`[GameRoom] Waiting for ${currentBidderId} to bid (${GameConfig.BID_TIMEOUT_MS}ms)`);
+    logger.log(`[GameRoom] Waiting for ${currentBidderId} to bid (${GameConfig.BID_TIMEOUT_MS}ms)`);
 
     // Set timeout for auto-bid
     this.bidTimer = this.clock.setTimeout(() => {
@@ -338,7 +339,7 @@ export class GameRoom extends Room<GameStateSchema> {
     const player = currentBidderId ? this.state.players.get(currentBidderId) : undefined;
     
     if (player && player.bid === -1) {
-      console.log(`[GameRoom] Player ${player.name} timed out, auto-bidding 0`);
+      logger.log(`[GameRoom] Player ${player.name} timed out, auto-bidding 0`);
       player.bid = 0;
       // Don't add to total bids since 0 doesn't change anything
     }
@@ -363,7 +364,7 @@ export class GameRoom extends Room<GameStateSchema> {
     this.state.leadSuit = '';
     this.state.trickWinnerId = '';
 
-    console.log(`[GameRoom] Starting trick ${this.state.trickNumber}`);
+    logger.log(`[GameRoom] Starting trick ${this.state.trickNumber}`);
 
     // Update all active player statuses
     this.state.players.forEach((player) => {
@@ -401,7 +402,7 @@ export class GameRoom extends Room<GameStateSchema> {
     const winner = this.state.players.get(winnerId);
     if (winner) {
       winner.tricksWon++;
-      console.log(`[GameRoom] ${winner.name} wins trick ${this.state.trickNumber} (total: ${winner.tricksWon})`);
+      logger.log(`[GameRoom] ${winner.name} wins trick ${this.state.trickNumber} (total: ${winner.tricksWon})`);
     }
 
     // Broadcast trick result
@@ -433,7 +434,7 @@ export class GameRoom extends Room<GameStateSchema> {
   private endRound() {
     this.state.phase = GamePhase.ROUND_END;
     
-    console.log(`[GameRoom] Round ${this.state.round} complete`);
+    logger.log(`[GameRoom] Round ${this.state.round} complete`);
 
     // Check each player's bid vs actual tricks
     const results: Array<{ playerId: string; name: string; bid: number; tricks: number; lostLife: boolean }> = [];
@@ -445,15 +446,15 @@ export class GameRoom extends Room<GameStateSchema> {
       
       if (!success) {
         player.lives--;
-        console.log(`[GameRoom] ${player.name} loses a life (bid ${player.bid}, got ${player.tricksWon}). Lives: ${player.lives}`);
+        logger.log(`[GameRoom] ${player.name} loses a life (bid ${player.bid}, got ${player.tricksWon}). Lives: ${player.lives}`);
         
         if (player.lives <= 0) {
           player.status = PlayerStatus.ELIMINATED;
           player.isSpectator = true;
-          console.log(`[GameRoom] ${player.name} is eliminated!`);
+          logger.log(`[GameRoom] ${player.name} is eliminated!`);
         }
       } else {
-        console.log(`[GameRoom] ${player.name} succeeds (bid ${player.bid}, got ${player.tricksWon})`);
+        logger.log(`[GameRoom] ${player.name} succeeds (bid ${player.bid}, got ${player.tricksWon})`);
         // Award score points for correct bid
         player.score += player.bid + 10;
       }
@@ -490,10 +491,10 @@ export class GameRoom extends Room<GameStateSchema> {
     });
 
     if (winnerId) {
-      console.log(`[GameRoom] Round winner is ${winnerId} with bid ${bestBid}`);
+      logger.log(`[GameRoom] Round winner is ${winnerId} with bid ${bestBid}`);
       this.lastRoundWinnerId = winnerId;
     } else {
-      console.log(`[GameRoom] No clear winner this round, maintaining standard rotation`);
+      logger.log(`[GameRoom] No clear winner this round, maintaining standard rotation`);
       this.lastRoundWinnerId = '';
     }
 
@@ -522,7 +523,7 @@ export class GameRoom extends Room<GameStateSchema> {
       const winnerId = activePlayers[0] || '';
       const winner = this.state.players.get(winnerId);
       
-      console.log(`[GameRoom] Game over! Winner: ${winner?.name || 'Nobody'}`);
+      logger.log(`[GameRoom] Game over! Winner: ${winner?.name || 'Nobody'}`);
 
       // Broadcast game over
       this.broadcast('game_over', {
