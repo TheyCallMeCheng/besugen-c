@@ -50,7 +50,7 @@ function App({ discordContext }: AppProps) {
     const handleCreateRoom = async () => {
         const name = playerName || `Player${Math.floor(Math.random() * 1000)}`;
         setPlayerName(name);
-        await createRoom(name);
+        await createRoom(name, discordContext?.avatarUrl || undefined);
         setCurrentScreen('lobby');
     };
 
@@ -59,7 +59,7 @@ function App({ discordContext }: AppProps) {
         if (!roomCodeInput) return;
         const name = playerName || `Player${Math.floor(Math.random() * 1000)}`;
         setPlayerName(name);
-        await joinRoom(roomCodeInput, name);
+        await joinRoom(roomCodeInput, name, discordContext?.avatarUrl || undefined);
         setCurrentScreen('lobby');
     };
 
@@ -84,6 +84,7 @@ function App({ discordContext }: AppProps) {
             return (
                 <MainMenu
                     playerName={playerName || discordContext?.userName || 'Player'}
+                    avatarUrl={discordContext?.avatarUrl || undefined}
                     playerLevel={12}
                     onPlayWithFriends={() => setCurrentScreen('menu')}
                     onPlayOnline={() => {
@@ -191,6 +192,7 @@ function App({ discordContext }: AppProps) {
             const lobbyPlayers = gameState.players.map(p => ({
                 id: p.id,
                 name: p.name,
+                imageUrl: p.avatarUrl || undefined,
                 isHost: p.isHost,
                 isReady: p.status === 'ready',
             }));
@@ -224,7 +226,7 @@ function App({ discordContext }: AppProps) {
                 <GameTable
                     round={gameState.round}
                     phase={gameState.phase}
-                    players={gameState.players}
+                    players={gameState.players.map(p => ({ ...p, imageUrl: p.avatarUrl || undefined }))}
                     currentPlayerId={gameState.currentPlayerId}
                     myPlayerId={gameState.myPlayerId}
                     myHand={gameState.myHand}

@@ -6,6 +6,7 @@ import type { CardData, TrickCardData } from '../components/ui';
 export interface GamePlayer {
   id: string;
   name: string;
+  avatarUrl: string;
   score: number;
   cardCount: number;
   isCurrentTurn?: boolean;
@@ -60,6 +61,7 @@ function schemaToPlayer(player: any, id: string, currentPlayerId: string): GameP
   return {
     id,
     name: player.name || 'Unknown',
+    avatarUrl: player.avatarUrl || '',
     score: player.score || 0,
     cardCount: player.hand?.length || 0,
     isCurrentTurn: currentPlayerId === id,
@@ -163,11 +165,11 @@ export function useGameRoom() {
   }, []);
 
   // Connect to a room
-  const createRoom = useCallback(async (playerName: string) => {
+  const createRoom = useCallback(async (playerName: string, avatarUrl?: string) => {
     setIsConnecting(true);
     setError(null);
     try {
-      const newRoom = await colyseusService.createRoom(playerName);
+      const newRoom = await colyseusService.createRoom(playerName, avatarUrl);
       
       // Set up state change listener
       newRoom.onStateChange(() => {
@@ -217,11 +219,11 @@ export function useGameRoom() {
     }
   }, [updateState]);
 
-  const joinRoom = useCallback(async (roomId: string, playerName: string) => {
+  const joinRoom = useCallback(async (roomId: string, playerName: string, avatarUrl?: string) => {
     setIsConnecting(true);
     setError(null);
     try {
-      const newRoom = await colyseusService.joinRoom(roomId, playerName);
+      const newRoom = await colyseusService.joinRoom(roomId, playerName, avatarUrl);
       
       newRoom.onStateChange(() => updateState(newRoom));
       newRoom.onError((code, message) => {

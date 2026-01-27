@@ -20,6 +20,7 @@ export interface Player {
   id: string;
   sessionId: string;
   name: string;
+  avatarUrl: string;
   status: PlayerStatusType;
   lives: number;
   score: number;
@@ -63,6 +64,7 @@ export interface GameState {
 export interface RoomOptions {
   maxPlayers?: number;
   playerName?: string;
+  avatarUrl?: string;
 }
 
 // Client events

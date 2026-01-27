@@ -63,6 +63,7 @@ function LogoIcon() {
 
 interface MainMenuProps {
     playerName?: string;
+    avatarUrl?: string;
     playerLevel?: number;
     onPlayWithFriends?: () => void;
     onPlayOnline?: () => void;
@@ -72,6 +73,7 @@ interface MainMenuProps {
 
 export function MainMenu({
     playerName = 'PlayerOne',
+    avatarUrl,
     playerLevel = 12,
     onPlayWithFriends,
     onPlayOnline,
@@ -104,9 +106,13 @@ export function MainMenu({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 }}
                 >
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                        <span className="text-white font-semibold">{playerName.charAt(0)}</span>
-                    </div>
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt={playerName} className="w-10 h-10 rounded-full object-cover" />
+                    ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                            <span className="text-white font-semibold">{playerName.charAt(0)}</span>
+                        </div>
+                    )}
                     <div className="text-left">
                         <p className="text-white text-sm font-medium">{playerName}</p>
                         <p className="text-green-400 text-xs">Lvl {playerLevel}</p>

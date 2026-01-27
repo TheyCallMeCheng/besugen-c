@@ -2,13 +2,12 @@ module.exports = {
   apps: [
     {
       name: 'besugen-server',
-      script: './apps/server/dist/index.js',
-      cwd: '/root/besugen-c',
+      script: './dist/index.js',
+      cwd: '/root/besugen-c/apps/server',
       env: {
         NODE_ENV: 'production',
         PORT: 2567,
       },
-      env_file: './apps/server/.env',
       node_args: '--experimental-specifier-resolution=node',
       instances: 1,
       autorestart: true,

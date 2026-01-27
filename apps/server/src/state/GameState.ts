@@ -20,6 +20,7 @@ export class PlayerSchema extends Schema {
   @type('string') id: string = '';
   @type('string') sessionId: string = '';
   @type('string') name: string = '';
+  @type('string') avatarUrl: string = '';
   @type('string') status: string = 'waiting';
   @type('number') lives: number = 3;
   @type('number') score: number = 0;

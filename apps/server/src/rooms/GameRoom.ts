@@ -50,6 +50,7 @@ export class GameRoom extends Room<GameStateSchema> {
     player.id = client.sessionId;
     player.sessionId = client.sessionId;
     player.name = options.playerName || `Player ${this.state.players.size + 1}`;
+    player.avatarUrl = options.avatarUrl || '';
     player.status = PlayerStatus.WAITING;
     player.lives = GameConfig.STARTING_LIVES;
     player.connectedAt = Date.now();

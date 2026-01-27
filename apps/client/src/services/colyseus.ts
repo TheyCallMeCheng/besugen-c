@@ -30,9 +30,9 @@ class ColyseusService {
     this.client = new Client(COLYSEUS_URL);
   }
 
-  async createRoom(playerName: string): Promise<Room> {
+  async createRoom(playerName: string, avatarUrl?: string): Promise<Room> {
     try {
-      this.room = await this.client.create('game_room', { playerName });
+      this.room = await this.client.create('game_room', { playerName, avatarUrl });
       console.log('[Colyseus] Created room - Full object:', this.room);
       console.log('[Colyseus] room.id:', this.room.roomId);
       console.log('[Colyseus] room.roomId:', (this.room as any).roomId);
@@ -45,9 +45,9 @@ class ColyseusService {
     }
   }
 
-  async joinRoom(roomId: string, playerName: string): Promise<Room> {
+  async joinRoom(roomId: string, playerName: string, avatarUrl?: string): Promise<Room> {
     try {
-      this.room = await this.client.joinById(roomId, { playerName });
+      this.room = await this.client.joinById(roomId, { playerName, avatarUrl });
       console.log('[Colyseus] Joined room:', this.room.roomId);
       return this.room;
     } catch (error) {
