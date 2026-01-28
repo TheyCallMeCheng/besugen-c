@@ -91,13 +91,15 @@ export function MainMenu({
             />
 
             {/* Floating decorations - card suit symbols, closer to center */}
-            <FloatingCard icon="♠" className="top-24 left-[15%]" delay={0} rotation={-12} size="text-8xl" />
-            <FloatingCard icon="♦" className="top-28 right-[15%]" delay={0.5} rotation={8} size="text-8xl" />
-            <FloatingCard icon="♥" className="bottom-32 left-[18%]" delay={1} rotation={-8} size="text-8xl" />
-            <FloatingCard icon="♣" className="bottom-28 right-[18%]" delay={1.5} rotation={10} size="text-8xl" />
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <FloatingCard icon="♠" className="top-24 left-[15%]" delay={0} rotation={-12} size="text-8xl" />
+                <FloatingCard icon="♦" className="top-28 right-[15%]" delay={0.5} rotation={8} size="text-8xl" />
+                <FloatingCard icon="♥" className="bottom-32 left-[18%]" delay={1} rotation={-8} size="text-8xl" />
+                <FloatingCard icon="♣" className="bottom-28 right-[18%]" delay={1.5} rotation={10} size="text-8xl" />
+            </div>
 
             {/* Header */}
-            <header className="absolute top-0 left-0 right-0 p-6 flex justify-end items-center">
+            <header className="absolute top-0 left-0 right-0 p-6 flex justify-end items-center z-10">
 
                 {/* Player profile badge */}
                 <motion.div
@@ -121,7 +123,7 @@ export function MainMenu({
             </header>
 
             {/* Main content */}
-            <main className="min-h-screen flex flex-col items-center justify-center px-6">
+            <main className="min-h-screen flex flex-col items-center justify-center px-6 relative z-10">
                 <motion.div
                     className="text-center"
                     initial={{ opacity: 0, y: 30 }}
@@ -240,7 +242,7 @@ export function MainMenu({
             </main>
 
             {/* Footer */}
-            <footer className="absolute bottom-0 left-0 right-0 p-6">
+            <footer className="absolute bottom-0 left-0 right-0 p-6 z-10">
                 <div className="flex justify-center items-center gap-4 text-slate-500 text-sm">
                     <button className="hover:text-white transition-colors">How to Play</button>
                     <span>•</span>
