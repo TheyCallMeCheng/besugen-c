@@ -219,12 +219,12 @@ export function useGameRoom() {
     }
   }, [updateState]);
 
-  const joinRoom = useCallback(async (roomId: string, playerName: string, avatarUrl?: string) => {
+  const joinRoom = useCallback(async (roomId: string, playerName: string, avatarUrl?: string): Promise<boolean> => {
     setIsConnecting(true);
     setError(null);
     try {
       const newRoom = await colyseusService.joinRoom(roomId, playerName, avatarUrl);
-      
+
       newRoom.onStateChange(() => updateState(newRoom));
       newRoom.onError((code, message) => {
         console.error('[Room Error]', code, message);
@@ -235,9 +235,9 @@ export function useGameRoom() {
         setRoom(null);
         setGameState(initialState);
       });
-      
+
       setRoom(newRoom);
-      
+
       // Poll for initial state
       let attempts = 0;
       const pollInterval = setInterval(() => {
@@ -250,10 +250,11 @@ export function useGameRoom() {
           clearInterval(pollInterval);
         }
       }, 100);
-      
-    } catch (err) {
-      setError('Failed to join room');
-      console.error(err);
+
+      return true;
+    } catch {
+      setError('Invalid room code. Please check and try again.');
+      return false;
     } finally {
       setIsConnecting(false);
     }
@@ -297,6 +298,7 @@ export function useGameRoom() {
     gameState: { ...gameState, myHand: sortedHand },
     isConnecting,
     error,
+    setError,
     createRoom,
     joinRoom,
     leaveRoom,

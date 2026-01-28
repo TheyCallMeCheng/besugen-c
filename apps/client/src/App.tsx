@@ -28,6 +28,7 @@ function App({ discordContext }: AppProps) {
         gameState,
         isConnecting,
         error,
+        setError,
         createRoom,
         joinRoom,
         leaveRoom,
@@ -59,8 +60,10 @@ function App({ discordContext }: AppProps) {
         if (!roomCodeInput) return;
         const name = playerName || `Player${Math.floor(Math.random() * 1000)}`;
         setPlayerName(name);
-        await joinRoom(roomCodeInput, name, discordContext?.avatarUrl || undefined);
-        setCurrentScreen('lobby');
+        const success = await joinRoom(roomCodeInput, name, discordContext?.avatarUrl || undefined);
+        if (success) {
+            setCurrentScreen('lobby');
+        }
     };
 
     // Handle leaving the room
@@ -122,12 +125,6 @@ function App({ discordContext }: AppProps) {
                             <p className="text-slate-400">Create or join a private room</p>
                         </div>
 
-                        {error && (
-                            <div className="bg-red-500/20 border border-red-500 rounded-lg p-3 mb-4 text-red-400 text-sm">
-                                {error}
-                            </div>
-                        )}
-
                         {/* Player Name - show Discord user or input field */}
                         {discordContext?.isDiscord && discordContext.userName ? (
                             <div className="mb-6 flex items-center gap-4 bg-slate-700/50 rounded-lg p-4">
@@ -170,9 +167,14 @@ function App({ discordContext }: AppProps) {
                             <input
                                 type="text"
                                 value={roomCodeInput}
-                                onChange={(e) => setRoomCodeInput(e.target.value)}
+                                onChange={(e) => {
+                                    setRoomCodeInput(e.target.value);
+                                    if (error) setError(null);
+                                }}
                                 placeholder="Room code..."
-                                className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className={`flex-1 bg-slate-700 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-colors ${
+                                    error ? 'border-red-500 focus:ring-red-500' : 'border-slate-600 focus:ring-blue-500'
+                                }`}
                             />
                             <button
                                 onClick={handleJoinRoom}
@@ -181,6 +183,12 @@ function App({ discordContext }: AppProps) {
                             >
                                 Join
                             </button>
+                        </div>
+                        {/* Error tooltip - fixed height to prevent layout shift */}
+                        <div className="h-6 mt-1">
+                            {error && (
+                                <p className="text-red-400 text-sm animate-pulse">{error}</p>
+                            )}
                         </div>
                     </div>
                 </div>

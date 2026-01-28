@@ -51,7 +51,8 @@ class ColyseusService {
       console.log('[Colyseus] Joined room:', this.room.roomId);
       return this.room;
     } catch (error) {
-      console.error('[Colyseus] Failed to join room:', error);
+      // Room not found is expected when user enters wrong code - use warn instead of error
+      console.warn('[Colyseus] Could not join room:', (error as Error).message);
       throw error;
     }
   }
