@@ -32,6 +32,8 @@ function App({ discordContext }: AppProps) {
         createRoom,
         joinRoom,
         leaveRoom,
+        reconnect,
+        canReconnect,
         sendReady,
         sendStartGame,
         sendBid,
@@ -39,6 +41,30 @@ function App({ discordContext }: AppProps) {
         sortHand,
         isHost,
     } = useGameRoom();
+
+    const [showReconnectPrompt, setShowReconnectPrompt] = useState(false);
+
+    // Check for reconnect opportunity on mount
+    useEffect(() => {
+        if (canReconnect() && !room) {
+            setShowReconnectPrompt(true);
+        }
+    }, []);
+
+    // Handle reconnection
+    const handleReconnect = async () => {
+        setShowReconnectPrompt(false);
+        const success = await reconnect();
+        if (success) {
+            // Go directly to game screen since we're rejoining an active game
+            setCurrentScreen('game');
+        }
+    };
+
+    // Dismiss reconnect prompt
+    const dismissReconnect = () => {
+        setShowReconnectPrompt(false);
+    };
 
     // Update player name if Discord context becomes available
     useEffect(() => {
@@ -264,6 +290,32 @@ function App({ discordContext }: AppProps) {
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
             />
+            {/* Reconnect Prompt Modal */}
+            {showReconnectPrompt && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-slate-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl border border-slate-700">
+                        <h2 className="text-xl font-bold text-white mb-3">Game in Progress</h2>
+                        <p className="text-slate-400 mb-6">
+                            You were disconnected from an active game. Would you like to rejoin?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={dismissReconnect}
+                                className="flex-1 bg-slate-700 text-white font-semibold rounded-lg px-4 py-3 hover:bg-slate-600 transition-colors"
+                            >
+                                No, thanks
+                            </button>
+                            <button
+                                onClick={handleReconnect}
+                                disabled={isConnecting}
+                                className="flex-1 bg-green-600 text-white font-semibold rounded-lg px-4 py-3 hover:bg-green-500 transition-colors disabled:opacity-50"
+                            >
+                                {isConnecting ? 'Reconnecting...' : 'Rejoin Game'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

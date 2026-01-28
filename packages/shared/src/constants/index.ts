@@ -44,7 +44,7 @@ export const GameConfig = {
   MIN_PLAYERS: 2,
   MAX_PLAYERS: 6,
   STARTING_LIVES: 3,
-  RECONNECT_TIMEOUT_MS: 30000,
+  RECONNECT_TIMEOUT_MS: 60000, // 1 minute to reconnect
   BID_TIMEOUT_MS: 10000,
   CARD_COUNTS: [5, 4, 3, 2, 1] as readonly number[],
   TRICK_RESOLVE_DELAY_MS: 1500,

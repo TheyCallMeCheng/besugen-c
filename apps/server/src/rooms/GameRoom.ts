@@ -15,6 +15,8 @@ export class GameRoom extends Room<GameStateSchema> {
   private bidTimer: Delayed | null = null;
   private trickResolveTimer: Delayed | null = null;
   private lastRoundWinnerId: string = '';
+  // Track disconnected players' previous status for reconnection
+  private disconnectedPlayerStatus: Map<string, string> = new Map();
 
   onCreate(options: RoomOptions) {
     this.setState(new GameStateSchema());
@@ -70,16 +72,16 @@ export class GameRoom extends Room<GameStateSchema> {
     logger.log(`[GameRoom] Player keys:`, Array.from(this.state.players.keys()));
   }
 
-  onLeave(client: Client, consented: boolean) {
-    logger.log(`[GameRoom] Player ${client.sessionId} left room ${this.roomId}`);
+  async onLeave(client: Client, consented: boolean) {
+    logger.log(`[GameRoom] Player ${client.sessionId} left room ${this.roomId} (consented: ${consented})`);
 
     const player = this.state.players.get(client.sessionId);
-    
+
     if (player) {
       if (this.state.phase === GamePhase.LOBBY) {
         // In lobby, just remove the player
         this.state.players.delete(client.sessionId);
-        
+
         // Reassign host if needed
         if (this.state.hostId === client.sessionId && this.state.players.size > 0) {
           const newHost = Array.from(this.state.players.values())[0];
@@ -87,13 +89,57 @@ export class GameRoom extends Room<GameStateSchema> {
           this.state.hostId = newHost.sessionId;
         }
       } else {
-        // During game, eliminate the player
-        player.status = PlayerStatus.ELIMINATED;
-        player.isSpectator = true;
-        player.lives = 0;
-        
-        // Check if game should end
-        this.checkGameOver();
+        // During game, allow reconnection
+        // Store the player's current status before marking as disconnected
+        this.disconnectedPlayerStatus.set(client.sessionId, player.status);
+        player.status = PlayerStatus.DISCONNECTED;
+
+        logger.log(`[GameRoom] Player ${player.name} disconnected, allowing ${GameConfig.RECONNECT_TIMEOUT_MS / 1000}s to reconnect`);
+
+        // Broadcast disconnect event so other players know
+        this.broadcast('player_disconnected', {
+          playerId: client.sessionId,
+          playerName: player.name,
+          reconnectTimeoutMs: GameConfig.RECONNECT_TIMEOUT_MS,
+        });
+
+        try {
+          // Allow reconnection within the timeout window
+          await this.allowReconnection(client, GameConfig.RECONNECT_TIMEOUT_MS / 1000);
+
+          // Player reconnected successfully!
+          const previousStatus = this.disconnectedPlayerStatus.get(client.sessionId) || PlayerStatus.PLAYING;
+          player.status = previousStatus;
+          this.disconnectedPlayerStatus.delete(client.sessionId);
+
+          logger.log(`[GameRoom] Player ${player.name} reconnected successfully!`);
+
+          // Broadcast reconnect event
+          this.broadcast('player_reconnected', {
+            playerId: client.sessionId,
+            playerName: player.name,
+          });
+
+        } catch (e) {
+          // Reconnection timed out - convert to spectator
+          logger.log(`[GameRoom] Player ${player.name} failed to reconnect, converting to spectator`);
+
+          this.disconnectedPlayerStatus.delete(client.sessionId);
+          player.status = PlayerStatus.ELIMINATED;
+          player.isSpectator = true;
+          player.lives = 0;
+          player.hand.clear(); // Clear their cards
+
+          // Broadcast that player is now eliminated
+          this.broadcast('player_eliminated', {
+            playerId: client.sessionId,
+            playerName: player.name,
+            reason: 'disconnect_timeout',
+          });
+
+          // Check if game should end
+          this.checkGameOver();
+        }
       }
     }
   }
@@ -234,6 +280,8 @@ export class GameRoom extends Room<GameStateSchema> {
     } else {
       // Next player's turn
       this.state.currentPlayerId = GameEngine.getNextPlayer(client.sessionId, activePlayers);
+      // Check if next player is disconnected and auto-play for them
+      this.handleDisconnectedPlayerTurn();
     }
   }
 
@@ -326,6 +374,23 @@ export class GameRoom extends Room<GameStateSchema> {
   private startBidTimer() {
     const currentBidderId = this.state.biddingOrder[this.state.currentBidderIndex] ?? '';
     this.state.currentPlayerId = currentBidderId;
+
+    const player = currentBidderId ? this.state.players.get(currentBidderId) : undefined;
+
+    // If player is disconnected, auto-bid immediately
+    if (player && player.status === PlayerStatus.DISCONNECTED) {
+      logger.log(`[GameRoom] Player ${player.name} is disconnected, auto-bidding 0`);
+      player.bid = 0;
+      // Move to next bidder
+      this.state.currentBidderIndex++;
+      if (this.state.currentBidderIndex >= this.state.biddingOrder.length) {
+        this.startTrickPhase();
+      } else {
+        this.startBidTimer();
+      }
+      return;
+    }
+
     this.state.bidTimerEnd = Date.now() + GameConfig.BID_TIMEOUT_MS;
 
     logger.log(`[GameRoom] Waiting for ${currentBidderId} to bid (${GameConfig.BID_TIMEOUT_MS}ms)`);
@@ -368,9 +433,9 @@ export class GameRoom extends Room<GameStateSchema> {
 
     logger.log(`[GameRoom] Starting trick ${this.state.trickNumber}`);
 
-    // Update all active player statuses
+    // Update all active player statuses (except disconnected players)
     this.state.players.forEach((player) => {
-      if (!player.isSpectator && player.lives > 0) {
+      if (!player.isSpectator && player.lives > 0 && player.status !== PlayerStatus.DISCONNECTED) {
         player.status = PlayerStatus.PLAYING;
       }
     });
@@ -378,7 +443,7 @@ export class GameRoom extends Room<GameStateSchema> {
     // First trick: bidding order leader starts
     // Subsequent tricks: previous trick winner starts
     const activePlayers = GameEngine.getActivePlayers(this.state.players);
-    
+
     if (this.state.trickNumber === 1) {
       // First player in bidding order starts
       this.state.currentPlayerId = this.state.biddingOrder[0] ?? activePlayers[0] ?? '';
@@ -392,6 +457,54 @@ export class GameRoom extends Room<GameStateSchema> {
       trickNumber: this.state.trickNumber,
       startingPlayer: this.state.currentPlayerId,
     });
+
+    // Check if current player is disconnected and auto-play for them
+    this.handleDisconnectedPlayerTurn();
+  }
+
+  // Auto-play a card for disconnected players
+  private handleDisconnectedPlayerTurn() {
+    if (this.state.phase !== GamePhase.TRICK) return;
+
+    const player = this.state.players.get(this.state.currentPlayerId);
+    if (!player || player.status !== PlayerStatus.DISCONNECTED) return;
+
+    // Player is disconnected, auto-play their first valid card
+    if (player.hand.length === 0) return;
+
+    const cardToPlay = player.hand[0];
+    logger.log(`[GameRoom] Auto-playing card for disconnected player ${player.name}: ${cardToPlay.value} of ${cardToPlay.suit}`);
+
+    // Remove card from hand
+    const card = GameEngine.removeCardFromHand(player, cardToPlay.id);
+    if (!card) return;
+
+    // Update public hand count
+    player.handCount = player.hand.length;
+
+    // Add card to current trick
+    const trickCard = new TrickCardSchema();
+    trickCard.playerId = this.state.currentPlayerId;
+    trickCard.card = card;
+    trickCard.playOrder = this.state.currentTrick.length;
+    this.state.currentTrick.push(trickCard);
+
+    // Set lead suit if this is the first card
+    if (this.state.currentTrick.length === 1) {
+      this.state.leadSuit = card.suit;
+    }
+
+    // Check if trick is complete
+    const activePlayers = GameEngine.getActivePlayers(this.state.players);
+    if (this.state.currentTrick.length >= activePlayers.length) {
+      // All players have played, resolve trick
+      this.resolveTrick();
+    } else {
+      // Next player's turn
+      this.state.currentPlayerId = GameEngine.getNextPlayer(this.state.currentPlayerId, activePlayers);
+      // Recursively check if next player is also disconnected
+      this.handleDisconnectedPlayerTurn();
+    }
   }
 
   private resolveTrick() {

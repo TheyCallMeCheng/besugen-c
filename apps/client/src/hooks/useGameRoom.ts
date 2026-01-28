@@ -266,6 +266,53 @@ export function useGameRoom() {
     setGameState(initialState);
   }, []);
 
+  // Check if reconnection is available
+  const canReconnect = useCallback(() => {
+    return colyseusService.getReconnectData() !== null;
+  }, []);
+
+  // Reconnect to a previous session
+  const reconnect = useCallback(async (): Promise<boolean> => {
+    setIsConnecting(true);
+    setError(null);
+    try {
+      const newRoom = await colyseusService.reconnect();
+
+      newRoom.onStateChange(() => updateState(newRoom));
+      newRoom.onError((code, message) => {
+        console.error('[Room Error]', code, message);
+        setError(message || 'Room error');
+      });
+      newRoom.onLeave((code) => {
+        console.log('[Room] Left with code:', code);
+        setRoom(null);
+        setGameState(initialState);
+      });
+
+      setRoom(newRoom);
+
+      // Poll for initial state
+      let attempts = 0;
+      const pollInterval = setInterval(() => {
+        attempts++;
+        const state = newRoom.state as any;
+        if (state?.players?.size > 0) {
+          updateState(newRoom);
+          clearInterval(pollInterval);
+        } else if (attempts >= 20) {
+          clearInterval(pollInterval);
+        }
+      }, 100);
+
+      return true;
+    } catch {
+      setError('Failed to reconnect to game');
+      return false;
+    } finally {
+      setIsConnecting(false);
+    }
+  }, [updateState]);
+
   // Game actions
   const sendReady = useCallback(() => colyseusService.sendReady(), []);
   const sendStartGame = useCallback(() => colyseusService.sendStartGame(), []);
@@ -302,6 +349,8 @@ export function useGameRoom() {
     createRoom,
     joinRoom,
     leaveRoom,
+    reconnect,
+    canReconnect,
     sendReady,
     sendStartGame,
     sendBid,
