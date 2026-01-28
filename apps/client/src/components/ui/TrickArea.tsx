@@ -14,6 +14,7 @@ interface TrickAreaProps {
     winnerId?: string;
     showWinner: boolean;
     deckCount: number;
+    size?: 'sm' | 'md';
 }
 
 // Position offsets for cards played in trick (relative to center)
@@ -31,16 +32,23 @@ export function TrickArea({
     winnerId,
     showWinner,
     deckCount,
+    size = 'md',
 }: TrickAreaProps) {
+    const isSmall = size === 'sm';
+    const containerSize = isSmall ? 'w-44 h-44' : 'w-72 h-72';
+    const cardSize = isSmall ? 'sm' : 'md';
+    const emptyAreaSize = isSmall ? 'w-14 h-20' : 'w-24 h-32';
+    const stackSize = isSmall ? 'w-14 h-20' : 'w-24 h-32';
+
     return (
-        <div className="relative w-72 h-72 flex items-center justify-center">
+        <div className={`relative ${containerSize} flex items-center justify-center`}>
             {/* Table felt background */}
             <div className="absolute inset-0 rounded-full border-2 border-table-border/30" />
 
             {/* Deck */}
             <div className="absolute left-1/4 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="relative">
-                    <PlayingCard faceUp={false} size="md" />
+                    <PlayingCard faceUp={false} size={cardSize} />
                     {deckCount > 1 && (
                         <>
                             <div className="absolute top-1 left-1 w-full h-full rounded-xl bg-red-900/50 -z-10" />
@@ -48,7 +56,7 @@ export function TrickArea({
                         </>
                     )}
                     {/* Deck count badge */}
-                    <div className="absolute -top-2 -right-2 bg-slate-800 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                    <div className={`absolute -top-2 -right-2 bg-slate-800 text-white text-xs rounded-full ${isSmall ? 'w-5 h-5' : 'w-6 h-6'} flex items-center justify-center`}>
                         {deckCount}
                     </div>
                 </div>
@@ -59,15 +67,16 @@ export function TrickArea({
                 <AnimatePresence>
                     {trickCards.length === 0 ? (
                         // Empty play area
-                        <div className="w-24 h-32 rounded-xl border-2 border-dashed border-table-border/50 flex items-center justify-center">
+                        <div className={`${emptyAreaSize} rounded-xl border-2 border-dashed border-table-border/50 flex items-center justify-center`}>
                             <span className="text-table-border/50 text-xs text-center">Play here</span>
                         </div>
                     ) : (
                         // Stack of played cards
-                        <div className="relative w-24 h-32">
+                        <div className={`relative ${stackSize}`}>
                             {trickCards.map((tc, index) => {
                                 const pos = CARD_POSITIONS[index % CARD_POSITIONS.length];
                                 const isWinningCard = showWinner && tc.playerId === winnerId;
+                                const posScale = isSmall ? 0.5 : 1;
 
                                 return (
                                     <motion.div
@@ -77,15 +86,15 @@ export function TrickArea({
                                             zIndex: tc.playOrder + 1,
                                         }}
                                         initial={{
-                                            x: pos.x - 100,
-                                            y: pos.y,
+                                            x: (pos.x - 100) * posScale,
+                                            y: pos.y * posScale,
                                             rotate: pos.rotate - 30,
                                             opacity: 0,
                                             scale: 0.8,
                                         }}
                                         animate={{
-                                            x: pos.x * 0.3,
-                                            y: pos.y * 0.3,
+                                            x: pos.x * 0.3 * posScale,
+                                            y: pos.y * 0.3 * posScale,
                                             rotate: pos.rotate * 0.5,
                                             opacity: 1,
                                             scale: isWinningCard ? 1.1 : 1,
@@ -108,15 +117,17 @@ export function TrickArea({
                                             <PlayingCard
                                                 card={tc.card}
                                                 faceUp={true}
-                                                size="md"
+                                                size={cardSize}
                                             />
                                             {/* Player name tag */}
                                             <div className={`
-                                                absolute -bottom-6 left-1/2 transform -translate-x-1/2
-                                                text-xs whitespace-nowrap px-2 py-1 rounded
+                                                absolute ${isSmall ? '-bottom-5' : '-bottom-6'} left-1/2 transform -translate-x-1/2
+                                                ${isSmall ? 'text-[10px]' : 'text-xs'} whitespace-nowrap px-1.5 py-0.5 rounded
                                                 ${isWinningCard ? 'bg-yellow-500 text-black font-bold' : 'bg-slate-800/80 text-white'}
                                             `}>
-                                                {tc.playerName.length > 25 ? tc.playerName.slice(0, 24) + '…' : tc.playerName}
+                                                {isSmall
+                                                    ? (tc.playerName.length > 8 ? tc.playerName.slice(0, 7) + '…' : tc.playerName)
+                                                    : (tc.playerName.length > 25 ? tc.playerName.slice(0, 24) + '…' : tc.playerName)}
                                                 {isWinningCard && ' 👑'}
                                             </div>
                                         </div>

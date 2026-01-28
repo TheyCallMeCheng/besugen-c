@@ -123,7 +123,14 @@ interface CardFanProps {
     onSelectCard?: (cardId: string) => void;
     spread?: number; // Angle spread in degrees
     xSpacing?: number; // Horizontal spacing in pixels
+    size?: 'sm' | 'md' | 'lg';
 }
+
+const FAN_HEIGHT = {
+    sm: 'h-24',
+    md: 'h-36',
+    lg: 'h-48',
+};
 
 export function CardFan({
     cards,
@@ -131,6 +138,7 @@ export function CardFan({
     onSelectCard,
     spread = 8,
     xSpacing = 40,
+    size = 'lg',
 }: CardFanProps) {
     const totalSpread = spread * (cards.length - 1);
     const startAngle = -totalSpread / 2;
@@ -139,13 +147,16 @@ export function CardFan({
     const totalWidth = xSpacing * (cards.length - 1);
     const startX = -totalWidth / 2;
 
+    const heightClass = FAN_HEIGHT[size];
+    const selectedOffset = size === 'sm' ? -12 : size === 'md' ? -16 : -20;
+
     return (
-        <div className="relative h-48 flex items-end justify-center">
+        <div className={`relative ${heightClass} flex items-end justify-center`}>
             {cards.map((card, index) => {
                 const angle = startAngle + spread * index;
                 const x = startX + xSpacing * index;
                 const isSelected = selectedCardId === card.id;
-                const translateY = isSelected ? -20 : 0;
+                const translateY = isSelected ? selectedOffset : 0;
 
                 return (
                     <motion.div
@@ -169,7 +180,7 @@ export function CardFan({
                                 soundManager.play('cardSelect');
                                 onSelectCard?.(card.id);
                             }}
-                            size="lg"
+                            size={size}
                         />
                     </motion.div>
                 );

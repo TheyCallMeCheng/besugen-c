@@ -3,6 +3,20 @@ import { useState, useEffect, useRef } from 'react';
 import { PlayerAvatar, PlayingCard, CardFan, BiddingModal, TrickArea, type CardData, type TrickCardData } from '../ui';
 import { soundManager } from '../../utils/soundManager';
 
+// Hook to detect mobile screen
+function useIsMobile() {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    return isMobile;
+}
+
 
 interface Player {
     id: string;
@@ -46,13 +60,22 @@ interface GameTableProps {
     onLeaveRoom?: () => void;
 }
 
-// Position players around an oval table
-const PLAYER_POSITIONS = [
+// Position players around an oval table - Desktop
+const DESKTOP_PLAYER_POSITIONS = [
     { top: '50%', left: '5%', transform: 'translateY(-50%)' },      // Left
     { top: '12%', left: '25%', transform: 'translate(-50%, -50%)' }, // Top-left
     { top: '8%', left: '50%', transform: 'translate(-50%, -50%)' },  // Top
     { top: '12%', right: '25%', transform: 'translate(50%, -50%)' }, // Top-right
     { top: '50%', right: '5%', transform: 'translateY(-50%)' },      // Right
+];
+
+// Mobile positions - horizontal row at top
+const MOBILE_PLAYER_POSITIONS = [
+    { top: '72px', left: '10%', transform: 'translateX(-50%)' },
+    { top: '72px', left: '30%', transform: 'translateX(-50%)' },
+    { top: '72px', left: '50%', transform: 'translateX(-50%)' },
+    { top: '72px', left: '70%', transform: 'translateX(-50%)' },
+    { top: '72px', left: '90%', transform: 'translateX(-50%)' },
 ];
 
 export function GameTable({
@@ -77,9 +100,11 @@ export function GameTable({
 }: GameTableProps) {
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
     const prevIsMyTurnRef = useRef(false);
+    const isMobile = useIsMobile();
 
     // Get other players (not me)
     const otherPlayers = players.filter((p) => p.id !== myPlayerId);
+    const playerPositions = isMobile ? MOBILE_PLAYER_POSITIONS : DESKTOP_PLAYER_POSITIONS;
     const myPlayer = players.find((p) => p.id === myPlayerId);
     const isMyTurn = currentPlayerId === myPlayerId;
     const isBiddingPhase = phase === 'bidding';
@@ -117,23 +142,23 @@ export function GameTable({
     return (
         <div className="min-h-screen bg-game-table relative overflow-hidden">
             {/* Header */}
-            <header className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-                <div className="flex items-center gap-4">
-                    {/* Logo */}
-                    <div className="flex items-center gap-2 bg-slate-900/80 rounded-lg px-4 py-2">
-                        <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white text-sm">🂠</span>
+            <header className="absolute top-0 left-0 right-0 p-2 md:p-4 flex justify-between items-center z-10">
+                <div className="flex items-center gap-1 md:gap-4">
+                    {/* Logo - icon only on mobile */}
+                    <div className="flex items-center gap-2 bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2">
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                            <span className="text-white text-xs md:text-sm">🂠</span>
                         </div>
-                        <span className="text-white font-semibold">Besugen</span>
+                        <span className="text-white font-semibold hidden md:inline">Besugen</span>
                     </div>
 
                     {/* Round indicator */}
-                    <div className="bg-slate-900/80 rounded-lg px-4 py-2">
-                        <span className="text-slate-400">Round {round}</span>
+                    <div className="bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2">
+                        <span className="text-slate-400 text-xs md:text-base">R{round}</span>
                     </div>
 
-                    {/* Phase indicator */}
-                    <div className="bg-slate-900/80 rounded-lg px-4 py-2">
+                    {/* Phase indicator - hidden on mobile, shown in center area instead */}
+                    <div className="bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2 hidden md:block">
                         <span className={`capitalize ${phase === 'bidding' ? 'text-amber-400' :
                             phase === 'trick' ? 'text-green-400' :
                                 phase === 'game_over' ? 'text-red-400' :
@@ -144,17 +169,17 @@ export function GameTable({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1 md:gap-4">
                     {/* Cards per round */}
-                    <div className="bg-slate-900/80 rounded-lg px-4 py-2 flex items-center gap-2">
-                        <span className="text-slate-400 text-sm">CARDS</span>
-                        <span className="text-white font-bold text-xl">{cardCount}</span>
+                    <div className="bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2 flex items-center gap-1 md:gap-2">
+                        <span className="text-slate-400 text-xs hidden md:inline">CARDS</span>
+                        <span className="text-white font-bold text-sm md:text-xl">{cardCount}</span>
                     </div>
 
                     {/* Settings */}
                     <motion.button
                         onClick={onSettings}
-                        className="w-10 h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                        className="w-8 h-8 md:w-10 md:h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors text-sm md:text-base"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
@@ -164,7 +189,7 @@ export function GameTable({
                     {/* Exit */}
                     <motion.button
                         onClick={onLeaveRoom}
-                        className="w-10 h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-900/50 transition-colors"
+                        className="w-8 h-8 md:w-10 md:h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-900/50 transition-colors text-sm md:text-base"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
@@ -177,7 +202,7 @@ export function GameTable({
             <div className="relative w-full h-screen">
                 {/* Other Players positioned around the table */}
                 {otherPlayers.slice(0, 5).map((player, index) => {
-                    const position = PLAYER_POSITIONS[index];
+                    const position = playerPositions[index];
                     if (!position) return null;
 
                     return (
@@ -189,12 +214,12 @@ export function GameTable({
                             <PlayerAvatar
                                 name={player.name}
                                 imageUrl={player.imageUrl}
-                                score={player.score}
+                                score={isMobile ? undefined : player.score}
                                 cardCount={player.cardCount}
                                 isCurrentTurn={player.id === currentPlayerId}
                                 status={player.id === currentPlayerId ? (isBiddingPhase ? 'Bidding...' : 'Playing...') : undefined}
-                                size="md"
-                                lives={player.lives}
+                                size={isMobile ? 'sm' : 'md'}
+                                lives={isMobile ? undefined : player.lives}
                                 bid={player.bid}
                                 tricksWon={player.tricksWon}
                                 isSpectator={player.isSpectator}
@@ -204,20 +229,21 @@ export function GameTable({
                 })}
 
                 {/* Center Play Area */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className={`absolute left-1/2 transform -translate-x-1/2 ${isMobile ? 'top-[35%]' : 'top-1/2'} -translate-y-1/2`}>
                     {isTrickPhase ? (
                         <TrickArea
                             trickCards={currentTrick}
                             winnerId={trickWinnerId}
                             showWinner={phase === 'trick_end'}
                             deckCount={deckCount}
+                            size={isMobile ? 'sm' : 'md'}
                         />
                     ) : (
                         /* Default center area */
-                        <div className="w-72 h-72 rounded-full border-2 border-table-border/30 flex items-center justify-center gap-6">
+                        <div className={`${isMobile ? 'w-40 h-40' : 'w-72 h-72'} rounded-full border-2 border-table-border/30 flex items-center justify-center gap-2 md:gap-6`}>
                             {/* Deck */}
                             <div className="relative">
-                                <PlayingCard faceUp={false} size="md" />
+                                <PlayingCard faceUp={false} size={isMobile ? 'sm' : 'md'} />
                                 {deckCount > 1 && (
                                     <>
                                         <div className="absolute top-1 left-1 w-full h-full rounded-xl bg-red-900/50 -z-10" />
@@ -227,11 +253,11 @@ export function GameTable({
                             </div>
 
                             {/* Phase info */}
-                            <div className="text-center text-slate-400">
-                                {phase === 'dealing' && <p>Dealing cards...</p>}
-                                {phase === 'bidding' && <p>Bidding in progress...</p>}
-                                {phase === 'round_end' && <p>Round complete!</p>}
-                                {phase === 'game_over' && <p className="text-xl text-amber-400">Game Over!</p>}
+                            <div className="text-center text-slate-400 text-xs md:text-base">
+                                {phase === 'dealing' && <p>Dealing...</p>}
+                                {phase === 'bidding' && <p>Bidding...</p>}
+                                {phase === 'round_end' && <p>Round done!</p>}
+                                {phase === 'game_over' && <p className="text-base md:text-xl text-amber-400">Game Over!</p>}
                             </div>
                         </div>
                     )}
@@ -239,19 +265,21 @@ export function GameTable({
 
                 {/* My Player Info (bottom left) */}
                 {myPlayer && (
-                    <div className="absolute bottom-6 left-6">
-                        <div className="flex items-center gap-3 bg-slate-900/80 rounded-xl px-4 py-3">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isSpectator ? 'bg-slate-700' : 'bg-gradient-to-br from-blue-500 to-purple-500'
+                    <div className={`absolute ${isMobile ? 'bottom-28 left-2' : 'bottom-6 left-6'}`}>
+                        <div className={`flex items-center gap-2 md:gap-3 bg-slate-900/80 rounded-xl px-2 md:px-4 py-2 md:py-3`}>
+                            <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} rounded-full flex items-center justify-center ${isSpectator ? 'bg-slate-700' : 'bg-gradient-to-br from-blue-500 to-purple-500'
                                 }`}>
-                                <span className="text-white font-semibold">{myPlayer.name.charAt(0)}</span>
+                                <span className={`text-white font-semibold ${isMobile ? 'text-sm' : ''}`}>{myPlayer.name.charAt(0)}</span>
                             </div>
                             <div>
-                                <p className="text-white font-medium">
-                                    {myPlayer.name.length > 25 ? myPlayer.name.slice(0, 24) + '…' : myPlayer.name}
-                                    {isSpectator && <span className="ml-2 text-slate-400 text-sm">👁 Spectating</span>}
+                                <p className={`text-white font-medium ${isMobile ? 'text-xs' : ''}`}>
+                                    {isMobile
+                                        ? (myPlayer.name.length > 10 ? myPlayer.name.slice(0, 9) + '…' : myPlayer.name)
+                                        : (myPlayer.name.length > 25 ? myPlayer.name.slice(0, 24) + '…' : myPlayer.name)}
+                                    {isSpectator && <span className="ml-1 md:ml-2 text-slate-400 text-xs md:text-sm">👁</span>}
                                 </p>
-                                {/* Lives */}
-                                {myPlayer.lives !== undefined && (
+                                {/* Lives - hide on mobile */}
+                                {!isMobile && myPlayer.lives !== undefined && (
                                     <div className="flex gap-1">
                                         {[...Array(3)].map((_, i) => (
                                             <span key={i} className={i < (myPlayer.lives || 0) ? 'text-red-500' : 'text-slate-600'}>
@@ -262,11 +290,13 @@ export function GameTable({
                                 )}
                                 {/* Bid info */}
                                 {myPlayer.bid !== undefined && myPlayer.bid >= 0 && (
-                                    <p className="text-amber-400 text-sm">
-                                        Bid: {myPlayer.bid} | Won: {myPlayer.tricksWon ?? 0}
+                                    <p className={`text-amber-400 ${isMobile ? 'text-[10px]' : 'text-sm'}`}>
+                                        {isMobile ? `${myPlayer.bid}/${myPlayer.tricksWon ?? 0}` : `Bid: ${myPlayer.bid} | Won: ${myPlayer.tricksWon ?? 0}`}
                                     </p>
                                 )}
-                                <p className="text-green-400 text-sm">Score: {myPlayer.score}</p>
+                                <p className={`text-green-400 ${isMobile ? 'text-[10px]' : 'text-sm'}`}>
+                                    {isMobile ? myPlayer.score : `Score: ${myPlayer.score}`}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -274,24 +304,24 @@ export function GameTable({
 
                 {/* Action Buttons (only during trick phase and not spectating) */}
                 {isTrickPhase && !isSpectator && (
-                    <div className="absolute bottom-64 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+                    <div className={`absolute ${isMobile ? 'bottom-28 right-2' : 'bottom-64 left-1/2 transform -translate-x-1/2'} flex items-center gap-2 md:gap-4`}>
                         <motion.button
                             onClick={() => {
                                 soundManager.play('sortHand');
                                 onSortHand?.();
                             }}
-                            className="bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-lg px-6 py-3 flex items-center gap-2 transition-colors"
+                            className={`bg-slate-800/80 hover:bg-slate-700/80 text-white rounded-lg ${isMobile ? 'px-3 py-2 text-xs' : 'px-6 py-3'} flex items-center gap-1 md:gap-2 transition-colors`}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
                             <span>⇅</span>
-                            <span>Sort Hand</span>
+                            <span className="hidden md:inline">Sort Hand</span>
                         </motion.button>
 
                         <motion.button
                             onClick={handlePlaySelected}
                             disabled={!selectedCardId || !isMyTurn}
-                            className={`rounded-lg px-8 py-3 flex items-center gap-2 transition-all ${selectedCardId && isMyTurn
+                            className={`rounded-lg ${isMobile ? 'px-3 py-2 text-xs' : 'px-8 py-3'} flex items-center gap-1 md:gap-2 transition-all ${selectedCardId && isMyTurn
                                 ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
                                 : 'bg-slate-700 text-slate-400 cursor-not-allowed'
                                 }`}
@@ -300,9 +330,11 @@ export function GameTable({
                         >
                             <span>▶</span>
                             <span className="font-medium">
-                                {isMyTurn
-                                    ? (selectedCardId ? 'Play Selected' : 'Select a Card')
-                                    : 'Wait for your turn'}
+                                {isMobile
+                                    ? (isMyTurn ? 'Play' : 'Wait')
+                                    : (isMyTurn
+                                        ? (selectedCardId ? 'Play Selected' : 'Select a Card')
+                                        : 'Wait for your turn')}
                             </span>
                         </motion.button>
                     </div>
@@ -310,23 +342,24 @@ export function GameTable({
 
                 {/* My Hand */}
                 {!isSpectator && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 pb-4">
+                    <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 ${isMobile ? 'pb-1' : 'pb-4'}`}>
                         <CardFan
                             cards={myHand}
                             selectedCardId={selectedCardId}
                             onSelectCard={(cardId) => setSelectedCardId(cardId)}
-                            spread={5}
-                            xSpacing={30}
+                            spread={isMobile ? 3 : 5}
+                            xSpacing={isMobile ? 18 : 30}
+                            size={isMobile ? 'sm' : 'lg'}
                         />
                     </div>
                 )}
 
                 {/* Spectator message */}
                 {isSpectator && (
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                        <div className="bg-slate-900/90 rounded-xl px-6 py-4 text-center">
-                            <p className="text-slate-400 text-lg">👁 You are spectating</p>
-                            <p className="text-slate-500 text-sm">Wait for the next game to join</p>
+                    <div className={`absolute ${isMobile ? 'bottom-2' : 'bottom-4'} left-1/2 transform -translate-x-1/2`}>
+                        <div className={`bg-slate-900/90 rounded-xl ${isMobile ? 'px-4 py-2' : 'px-6 py-4'} text-center`}>
+                            <p className={`text-slate-400 ${isMobile ? 'text-sm' : 'text-lg'}`}>👁 Spectating</p>
+                            <p className={`text-slate-500 ${isMobile ? 'text-xs' : 'text-sm'}`}>Wait for next game</p>
                         </div>
                     </div>
                 )}
