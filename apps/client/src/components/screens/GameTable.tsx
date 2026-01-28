@@ -43,6 +43,7 @@ interface GameTableProps {
     onSortHand?: () => void;
     onSubmitBid?: (bid: number) => void;
     onSettings?: () => void;
+    onLeaveRoom?: () => void;
 }
 
 // Position players around an oval table
@@ -72,6 +73,7 @@ export function GameTable({
     onSortHand,
     onSubmitBid,
     onSettings,
+    onLeaveRoom,
 }: GameTableProps) {
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
     const prevIsMyTurnRef = useRef(false);
@@ -157,6 +159,16 @@ export function GameTable({
                         whileTap={{ scale: 0.95 }}
                     >
                         ⚙️
+                    </motion.button>
+
+                    {/* Exit */}
+                    <motion.button
+                        onClick={onLeaveRoom}
+                        className="w-10 h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-900/50 transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        ✕
                     </motion.button>
                 </div>
             </header>

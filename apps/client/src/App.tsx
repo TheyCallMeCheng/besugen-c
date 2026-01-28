@@ -241,6 +241,7 @@ function App({ discordContext }: AppProps) {
                     onSortHand={sortHand}
                     onSubmitBid={sendBid}
                     onSettings={() => setIsSettingsOpen(true)}
+                    onLeaveRoom={handleLeave}
                 />
             );
         }
