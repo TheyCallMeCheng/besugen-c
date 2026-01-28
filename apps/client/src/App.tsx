@@ -98,13 +98,19 @@ function App({ discordContext }: AppProps) {
         setCurrentScreen('home');
     };
 
-    // Navigate to game screen when game starts (phase changes from lobby)
-    // This is handled by useEffect to avoid state updates during render
+    // Navigate between screens based on game phase
     const gamePhase = gameState.phase;
+
+    // Go to game screen when game starts (phase changes from lobby)
     const shouldShowGame = room && gamePhase && gamePhase !== 'lobby' && currentScreen === 'lobby';
     if (shouldShowGame) {
-        // Use setTimeout to avoid updating state during render
         setTimeout(() => setCurrentScreen('game'), 0);
+    }
+
+    // Return to lobby screen when game ends and resets to lobby phase
+    const shouldReturnToLobby = room && gamePhase === 'lobby' && currentScreen === 'game';
+    if (shouldReturnToLobby) {
+        setTimeout(() => setCurrentScreen('lobby'), 0);
     }
 
     const renderScreen = () => {

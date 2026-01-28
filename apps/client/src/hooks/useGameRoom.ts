@@ -191,7 +191,13 @@ export function useGameRoom() {
         setRoom(null);
         setGameState(initialState);
       });
-      
+
+      // Handle return to lobby message
+      newRoom.onMessage('return_to_lobby', (data) => {
+        console.log('[useGameRoom] Return to lobby:', data.message);
+        // State will be updated automatically via onStateChange
+      });
+
       setRoom(newRoom);
       
       // Poll for initial state update (workaround for timing issue)
@@ -234,6 +240,12 @@ export function useGameRoom() {
         console.log('[Room] Left with code:', code);
         setRoom(null);
         setGameState(initialState);
+      });
+
+      // Handle return to lobby message
+      newRoom.onMessage('return_to_lobby', (data) => {
+        console.log('[useGameRoom] Return to lobby:', data.message);
+        // State will be updated automatically via onStateChange
       });
 
       setRoom(newRoom);
@@ -297,6 +309,12 @@ export function useGameRoom() {
         console.log('[Room] Left with code:', code);
         setRoom(null);
         setGameState(initialState);
+      });
+
+      // Handle return to lobby message
+      newRoom.onMessage('return_to_lobby', (data) => {
+        console.log('[useGameRoom] Return to lobby:', data.message);
+        // State will be updated automatically via onStateChange
       });
 
       setRoom(newRoom);

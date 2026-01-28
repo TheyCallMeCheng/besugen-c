@@ -641,13 +641,13 @@ export class GameRoom extends Room<GameStateSchema> {
 
   private checkGameOver(): boolean {
     const activePlayers = GameEngine.getActivePlayers(this.state.players);
-    
+
     if (activePlayers.length <= 1) {
       this.state.phase = GamePhase.GAME_OVER;
-      
+
       const winnerId = activePlayers[0] || '';
       const winner = this.state.players.get(winnerId);
-      
+
       logger.log(`[GameRoom] Game over! Winner: ${winner?.name || 'Nobody'}`);
 
       // Broadcast game over
@@ -662,9 +662,56 @@ export class GameRoom extends Room<GameStateSchema> {
         })),
       });
 
+      // Return to lobby after 5 seconds so players can see results
+      this.clock.setTimeout(() => {
+        this.resetToLobby();
+      }, 5000);
+
       return true;
     }
 
     return false;
+  }
+
+  // Reset game state and return all players to lobby
+  private resetToLobby() {
+    logger.log(`[GameRoom] Resetting room ${this.roomId} to lobby`);
+
+    // Reset game state
+    this.state.phase = GamePhase.LOBBY;
+    this.state.round = 0;
+    this.state.cardCountIndex = 0;
+    this.state.currentCardCount = GameConfig.CARD_COUNTS[0];
+    this.state.totalBids = 0;
+    this.state.trickNumber = 0;
+    this.state.currentPlayerId = '';
+    this.state.trickWinnerId = '';
+    this.state.leadSuit = '';
+    this.state.bidTimerEnd = 0;
+    this.state.currentBidderIndex = 0;
+    this.state.biddingOrder.clear();
+    this.state.currentTrick.clear();
+    this.state.deck.clear();
+    this.lastRoundWinnerId = '';
+
+    // Reset all players (keep them in room but reset their game state)
+    this.state.players.forEach((player) => {
+      player.status = PlayerStatus.WAITING;
+      player.lives = GameConfig.STARTING_LIVES;
+      player.score = 0;
+      player.bid = -1;
+      player.tricksWon = 0;
+      player.hand.clear();
+      player.handCount = 0;
+      player.isSpectator = false;
+      // Keep: id, sessionId, name, avatarUrl, isHost, connectedAt
+    });
+
+    // Broadcast return to lobby
+    this.broadcast('return_to_lobby', {
+      message: 'Game ended. Returning to lobby.',
+    });
+
+    logger.log(`[GameRoom] Room ${this.roomId} reset to lobby with ${this.state.players.size} players`);
   }
 }
