@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { soundManager } from '../../utils/soundManager';
 
 
@@ -34,6 +34,18 @@ export function BiddingModal({
 }: BiddingModalProps) {
     const [timeLeft, setTimeLeft] = useState(10);
     const [selectedBid, setSelectedBid] = useState<number | null>(null);
+    const selectedBidRef = useRef<number | null>(null);
+    const hasAutoSubmittedRef = useRef(false);
+
+    // Keep ref in sync with state
+    useEffect(() => {
+        selectedBidRef.current = selectedBid;
+    }, [selectedBid]);
+
+    // Reset auto-submit flag when turn changes
+    useEffect(() => {
+        hasAutoSubmittedRef.current = false;
+    }, [isMyTurn]);
 
     // Calculate max bid (capped by remaining tricks)
     const maxBid = Math.max(0, cardCount - totalBidsSoFar);
@@ -51,12 +63,19 @@ export function BiddingModal({
             if (remaining === 3 && isMyTurn) {
                 soundManager.play('timerWarning');
             }
+
+            // Auto-submit when timer reaches 0 if it's my turn and I have a selection
+            if (remaining === 0 && isMyTurn && selectedBidRef.current !== null && !hasAutoSubmittedRef.current) {
+                hasAutoSubmittedRef.current = true;
+                soundManager.play('bidSubmit');
+                onSubmitBid(selectedBidRef.current);
+            }
         };
 
         updateTimer();
         const interval = setInterval(updateTimer, 100);
         return () => clearInterval(interval);
-    }, [isOpen, timerEndTime, isMyTurn]);
+    }, [isOpen, timerEndTime, isMyTurn, onSubmitBid]);
 
     // Reset selection when turn changes
     useEffect(() => {
