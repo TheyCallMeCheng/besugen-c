@@ -48,6 +48,16 @@ export class GameRoom extends Room<GameStateSchema> {
     logger.log(`[GameRoom] onJoin called - Player ${client.sessionId} joining room ${this.roomId}`);
     logger.log(`[GameRoom] Options:`, options);
 
+    // Reject if game is already in progress
+    if (this.state.phase !== GamePhase.LOBBY) {
+      throw new Error('Game already in progress');
+    }
+
+    // Reject if room is full
+    if (this.state.players.size >= GameConfig.MAX_PLAYERS) {
+      throw new Error('Room is full');
+    }
+
     const player = new PlayerSchema();
     player.id = client.sessionId;
     player.sessionId = client.sessionId;
@@ -67,7 +77,7 @@ export class GameRoom extends Room<GameStateSchema> {
     }
 
     this.state.players.set(client.sessionId, player);
-    
+
     logger.log(`[GameRoom] Player added! Players count: ${this.state.players.size}`);
     logger.log(`[GameRoom] Player keys:`, Array.from(this.state.players.keys()));
   }

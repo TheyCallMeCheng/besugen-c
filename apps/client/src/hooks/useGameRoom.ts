@@ -252,8 +252,18 @@ export function useGameRoom() {
       }, 100);
 
       return true;
-    } catch {
-      setError('Invalid room code. Please check and try again.');
+    } catch (err) {
+      // Extract error message from server or use default
+      const message = (err as Error)?.message || '';
+      if (message.includes('Game already in progress')) {
+        setError('Game already in progress. Cannot join.');
+      } else if (message.includes('Room is full')) {
+        setError('Room is full. Cannot join.');
+      } else if (message.includes('not found')) {
+        setError('Invalid room code. Please check and try again.');
+      } else {
+        setError('Unable to join room. Please try again.');
+      }
       return false;
     } finally {
       setIsConnecting(false);
