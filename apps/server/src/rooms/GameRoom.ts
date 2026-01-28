@@ -286,8 +286,9 @@ export class GameRoom extends Room<GameStateSchema> {
     
     let startingPlayerId: string;
     if (this.state.round === 1) {
-      // First round - use rotation (or random) but usually index 0
-      startingPlayerId = activePlayers[0] ?? '';
+      // First round - pick a random player to start
+      const randomIndex = Math.floor(Math.random() * activePlayers.length);
+      startingPlayerId = activePlayers[randomIndex] ?? '';
     } else if (this.lastRoundWinnerId && activePlayers.includes(this.lastRoundWinnerId)) {
       // Use the winner of the previous round
        startingPlayerId = this.lastRoundWinnerId;
