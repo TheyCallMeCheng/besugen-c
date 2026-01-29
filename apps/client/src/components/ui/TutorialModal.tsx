@@ -1,7 +1,28 @@
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlayingCard, CardData } from './PlayingCard';
 import { soundManager } from '../../utils/soundManager';
+import {
+    Sparkles,
+    Target,
+    Crown,
+    Hash,
+    HelpCircle,
+    Swords,
+    Heart,
+    Lightbulb,
+    Users,
+    Layers,
+    RefreshCw,
+    Clock,
+    Trophy,
+    AlertTriangle,
+    Check,
+    X,
+    Zap,
+    Calculator,
+    Copy,
+} from 'lucide-react';
 
 interface TutorialModalProps {
     isOpen: boolean;
@@ -22,54 +43,54 @@ const SAMPLE_CARDS: Record<string, CardData> = {
 };
 
 // Tutorial slides
-const slides = [
+const slides: Array<{ id: string; title: string; subtitle: string; icon: ReactNode }> = [
     {
         id: 'welcome',
         title: 'Welcome to Besugen!',
         subtitle: 'The Ultimate Card Battle',
-        icon: '🎴',
+        icon: <Sparkles className="w-7 h-7" />,
     },
     {
         id: 'overview',
         title: 'Game Overview',
         subtitle: 'Predict & Survive',
-        icon: '🎯',
+        icon: <Target className="w-7 h-7" />,
     },
     {
         id: 'suits',
         title: 'Suit Hierarchy',
         subtitle: 'Not All Suits Are Equal',
-        icon: '👑',
+        icon: <Crown className="w-7 h-7" />,
     },
     {
         id: 'values',
         title: 'Card Values',
         subtitle: 'Higher is Better (Usually)',
-        icon: '🔢',
+        icon: <Hash className="w-7 h-7" />,
     },
     {
         id: 'bidding',
         title: 'The Bidding Phase',
         subtitle: 'Make Your Predictions',
-        icon: '🤔',
+        icon: <HelpCircle className="w-7 h-7" />,
     },
     {
         id: 'tricks',
         title: 'Playing Tricks',
         subtitle: 'May the Best Card Win',
-        icon: '⚔️',
+        icon: <Swords className="w-7 h-7" />,
     },
     {
         id: 'lives',
         title: 'Lives & Scoring',
         subtitle: 'Stay in the Game',
-        icon: '❤️',
+        icon: <Heart className="w-7 h-7" />,
     },
     {
         id: 'tips',
         title: 'Pro Tips',
         subtitle: 'Secrets to Victory',
-        icon: '💡',
+        icon: <Lightbulb className="w-7 h-7" />,
     },
 ];
 
@@ -105,11 +126,11 @@ function WelcomeSlide() {
 }
 
 function OverviewSlide() {
-    const phases = [
-        { icon: '🃏', label: 'Deal', desc: 'Cards are dealt' },
-        { icon: '🎯', label: 'Bid', desc: 'Predict your wins' },
-        { icon: '⚔️', label: 'Play', desc: 'Win tricks' },
-        { icon: '📊', label: 'Score', desc: 'Check your bid' },
+    const phases: Array<{ icon: ReactNode; label: string; desc: string }> = [
+        { icon: <Layers className="w-6 h-6" />, label: 'Deal', desc: 'Cards are dealt' },
+        { icon: <Target className="w-6 h-6" />, label: 'Bid', desc: 'Predict your wins' },
+        { icon: <Swords className="w-6 h-6" />, label: 'Play', desc: 'Win tricks' },
+        { icon: <Trophy className="w-6 h-6" />, label: 'Score', desc: 'Check your bid' },
     ];
 
     return (
@@ -123,7 +144,7 @@ function OverviewSlide() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.15 }}
                     >
-                        <div className="text-3xl mb-2">{phase.icon}</div>
+                        <div className="flex justify-center mb-2 text-blue-400">{phase.icon}</div>
                         <div className="text-white font-semibold text-sm">{phase.label}</div>
                         <div className="text-slate-400 text-xs">{phase.desc}</div>
                     </motion.div>
@@ -132,21 +153,21 @@ function OverviewSlide() {
 
             <div className="bg-slate-700/50 rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-3">
-                    <span className="text-2xl">👥</span>
+                    <Users className="w-6 h-6 text-blue-400" />
                     <div>
                         <span className="text-white font-medium">2-6 Players</span>
                         <span className="text-slate-400 text-sm ml-2">The more the merrier!</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="text-2xl">🎴</span>
+                    <Layers className="w-6 h-6 text-purple-400" />
                     <div>
                         <span className="text-white font-medium">104 Cards</span>
                         <span className="text-slate-400 text-sm ml-2">(Two full decks shuffled together)</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="text-2xl">🔄</span>
+                    <RefreshCw className="w-6 h-6 text-green-400" />
                     <div>
                         <span className="text-white font-medium">Card Rotation</span>
                         <span className="text-slate-400 text-sm ml-2">5 → 4 → 3 → 2 → 1 → repeat</span>
@@ -258,7 +279,7 @@ function ValuesSlide() {
                 >
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <PlayingCard card={SAMPLE_CARDS.heartK} size="sm" />
-                        <span className="text-green-400 text-xl">🏆</span>
+                        <Trophy className="w-5 h-5 text-green-400" />
                         <PlayingCard card={SAMPLE_CARDS.heart5} size="sm" />
                     </div>
                     <p className="text-green-300 text-xs text-center">K of Hearts beats 5 of Hearts</p>
@@ -272,7 +293,7 @@ function ValuesSlide() {
                 >
                     <div className="flex items-center justify-center gap-2 mb-2">
                         <PlayingCard card={SAMPLE_CARDS.heartA} size="sm" />
-                        <span className="text-amber-400 text-xl">⚠️</span>
+                        <AlertTriangle className="w-5 h-5 text-amber-400" />
                     </div>
                     <p className="text-amber-300 text-xs text-center">Ace is the LOWEST card (=1)</p>
                 </motion.div>
@@ -326,8 +347,9 @@ function BiddingSlide() {
             </div>
 
             <div className="bg-slate-700/30 rounded-lg p-3">
-                <p className="text-slate-400 text-sm text-center">
-                    ⏱️ You have <span className="text-white font-bold">10 seconds</span> to bid, or you'll auto-bid 0!
+                <p className="text-slate-400 text-sm text-center flex items-center justify-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    You have <span className="text-white font-bold">10 seconds</span> to bid, or you'll auto-bid 0!
                 </p>
             </div>
         </div>
@@ -359,7 +381,7 @@ function TricksSlide() {
                     >
                         <div className="relative">
                             <PlayingCard card={SAMPLE_CARDS.heartA} size="sm" />
-                            <span className="absolute -top-2 -right-2 text-xl">👑</span>
+                            <Crown className="absolute -top-2 -right-2 w-5 h-5 text-yellow-400" />
                         </div>
                         <p className="text-green-400 text-xs mt-1 font-bold">WINNER!</p>
                     </motion.div>
@@ -392,10 +414,16 @@ function LivesSlide() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                 >
-                    <div className="text-4xl mb-2">✅</div>
+                    <div className="flex justify-center mb-2">
+                        <Check className="w-10 h-10 text-green-400" />
+                    </div>
                     <p className="text-white font-medium">Bid = Tricks Won</p>
                     <p className="text-green-400 text-sm mt-1">Safe! + Bonus points</p>
-                    <div className="mt-2 text-red-500 text-xl">❤️ ❤️ ❤️</div>
+                    <div className="mt-2 flex justify-center gap-1">
+                        <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                        <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                        <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                    </div>
                 </motion.div>
 
                 <motion.div
@@ -403,12 +431,15 @@ function LivesSlide() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                 >
-                    <div className="text-4xl mb-2">❌</div>
+                    <div className="flex justify-center mb-2">
+                        <X className="w-10 h-10 text-red-400" />
+                    </div>
                     <p className="text-white font-medium">Bid ≠ Tricks Won</p>
                     <p className="text-red-400 text-sm mt-1">Lose a life!</p>
-                    <div className="mt-2 text-xl">
-                        <span className="text-red-500">❤️ ❤️</span>
-                        <span className="text-slate-600"> 💔</span>
+                    <div className="mt-2 flex justify-center gap-1">
+                        <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                        <Heart className="w-5 h-5 text-red-500 fill-red-500" />
+                        <Heart className="w-5 h-5 text-slate-600" />
                     </div>
                 </motion.div>
             </div>
@@ -419,7 +450,9 @@ function LivesSlide() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
             >
-                <div className="text-5xl mb-2">🏆</div>
+                <div className="flex justify-center mb-2">
+                    <Trophy className="w-12 h-12 text-yellow-400" />
+                </div>
                 <p className="text-white font-bold text-lg">Last Player Standing Wins!</p>
                 <p className="text-slate-400 text-sm mt-1">
                     When you lose all 3 lives, you're eliminated and become a spectator.
@@ -430,12 +463,32 @@ function LivesSlide() {
 }
 
 function TipsSlide() {
-    const tips = [
-        { icon: '♥', tip: 'Hearts are KING - even a low Heart beats high cards of other suits' },
-        { icon: '🎯', tip: 'Bidding 0 is valid! Sometimes dodging tricks is the smartest play' },
-        { icon: '🃏', tip: 'With 2 decks, duplicates exist - playing first matters in ties' },
-        { icon: '🧮', tip: 'Count what\'s been played to predict what others might have' },
-        { icon: '⚡', tip: 'In the 1-card round, it\'s pure chaos - embrace it!' },
+    const tips: Array<{ icon: ReactNode; tip: string; color: string }> = [
+        {
+            icon: <Heart className="w-5 h-5" />,
+            tip: 'Hearts are KING - even a low Heart beats high cards of other suits',
+            color: 'text-red-400'
+        },
+        {
+            icon: <Target className="w-5 h-5" />,
+            tip: 'Bidding 0 is valid! Sometimes dodging tricks is the smartest play',
+            color: 'text-blue-400'
+        },
+        {
+            icon: <Copy className="w-5 h-5" />,
+            tip: 'With 2 decks, duplicates exist - playing first matters in ties',
+            color: 'text-purple-400'
+        },
+        {
+            icon: <Calculator className="w-5 h-5" />,
+            tip: 'Count what\'s been played to predict what others might have',
+            color: 'text-green-400'
+        },
+        {
+            icon: <Zap className="w-5 h-5" />,
+            tip: 'In the 1-card round, it\'s pure chaos - embrace it!',
+            color: 'text-yellow-400'
+        },
     ];
 
     return (
@@ -448,7 +501,7 @@ function TipsSlide() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
                 >
-                    <span className="text-2xl">{tip.icon}</span>
+                    <div className={`${tip.color} flex-shrink-0 mt-0.5`}>{tip.icon}</div>
                     <p className="text-slate-300 text-sm">{tip.tip}</p>
                 </motion.div>
             ))}
@@ -546,7 +599,7 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <span className="text-3xl">{slide.icon}</span>
+                                <div className="text-white">{slide.icon}</div>
                                 <div>
                                     <h2 className="text-white font-bold text-lg">{slide.title}</h2>
                                     <p className="text-white/70 text-sm">{slide.subtitle}</p>
@@ -627,11 +680,12 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
                             ) : (
                                 <motion.button
                                     onClick={handleClose}
-                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
-                                    Let's Play! 🎮
+                                    Let's Play!
+                                    <Sparkles className="w-4 h-4" />
                                 </motion.button>
                             )}
                         </div>

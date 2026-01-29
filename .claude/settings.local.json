@@ -6,7 +6,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(npx tsc:*)",
       "Bash(npm run build:*)",
-      "Bash(pnpm --filter client exec tsc:*)"
+      "Bash(pnpm --filter client exec tsc:*)",
+      "Bash(pnpm --filter client add:*)"
     ]
   }
 }
