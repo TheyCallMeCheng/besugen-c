@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { soundManager } from '../../utils/soundManager';
+import { TutorialModal } from '../ui/TutorialModal';
 
 
 // Floating card decoration icons with glow effect
@@ -80,6 +82,8 @@ export function MainMenu({
     onSettings,
     onRanking,
 }: MainMenuProps) {
+    const [showTutorial, setShowTutorial] = useState(false);
+
     return (
         <div className="min-h-screen bg-main-menu relative overflow-hidden">
             {/* Radial gradient vignette overlay - darker edges, lighter center */}
@@ -237,6 +241,20 @@ export function MainMenu({
                                 <span className="font-medium">RANKING</span>
                             </motion.button>
                         </div>
+
+                        {/* How to Play button */}
+                        <motion.button
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                setShowTutorial(true);
+                            }}
+                            className="w-full bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-3 transition-all border border-purple-500/30"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <span className="text-xl">📖</span>
+                            <span className="font-medium">HOW TO PLAY</span>
+                        </motion.button>
                     </motion.div>
                 </motion.div>
             </main>
@@ -244,7 +262,12 @@ export function MainMenu({
             {/* Footer */}
             <footer className="absolute bottom-0 left-0 right-0 p-6 z-10">
                 <div className="flex justify-center items-center gap-4 text-slate-500 text-sm">
-                    <button className="hover:text-white transition-colors">How to Play</button>
+                    <button
+                        onClick={() => setShowTutorial(true)}
+                        className="hover:text-white transition-colors"
+                    >
+                        How to Play
+                    </button>
                     <span>•</span>
                     <button className="hover:text-white transition-colors">Credits</button>
                     <span>•</span>
@@ -253,6 +276,9 @@ export function MainMenu({
                     <span>v1.0.2</span>
                 </div>
             </footer>
+
+            {/* Tutorial Modal */}
+            <TutorialModal isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
         </div>
     );
 }

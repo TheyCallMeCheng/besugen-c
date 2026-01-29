@@ -5,3 +5,4 @@ export { BiddingModal } from './BiddingModal';
 export * from './TrickArea';
 export * from './SettingsModal';
 export * from './ErrorBoundary';
+export * from './TutorialModal';
