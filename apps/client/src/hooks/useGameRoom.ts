@@ -165,7 +165,7 @@ export function useGameRoom() {
   }, []);
 
   // Connect to a room
-  const createRoom = useCallback(async (playerName: string, avatarUrl?: string) => {
+  const createRoom = useCallback(async (playerName: string, avatarUrl?: string): Promise<string | null> => {
     setIsConnecting(true);
     setError(null);
     try {
@@ -216,10 +216,12 @@ export function useGameRoom() {
           clearInterval(pollInterval);
         }
       }, 100);
-      
+
+      return newRoom.roomId;
     } catch (err) {
       setError('Failed to create room');
       console.error(err);
+      return null;
     } finally {
       setIsConnecting(false);
     }

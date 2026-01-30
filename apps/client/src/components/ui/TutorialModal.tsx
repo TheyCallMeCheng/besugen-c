@@ -2,6 +2,7 @@ import { useState, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlayingCard, CardData } from './PlayingCard';
 import { soundManager } from '../../utils/soundManager';
+import { trackTutorialCompleted } from '../../services/analytics';
 import {
     Sparkles,
     Target,
@@ -564,6 +565,8 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
 
     const handleClose = () => {
         soundManager.play('buttonClick');
+        // Track how many slides the user viewed (currentSlide is 0-indexed, so add 1)
+        trackTutorialCompleted(currentSlide + 1);
         setCurrentSlide(0);
         onClose();
     };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { soundManager } from '../../utils/soundManager';
 import { TutorialModal } from '../ui/TutorialModal';
+import { trackTutorialOpened } from '../../services/analytics';
 
 
 // Floating card decoration icons with glow effect
@@ -93,6 +94,12 @@ export function MainMenu({
     const handleButtonClick = (callback?: () => void) => {
         soundManager.play('buttonClick');
         callback?.();
+    };
+
+    // Handle opening tutorial with analytics tracking
+    const handleOpenTutorial = () => {
+        trackTutorialOpened();
+        setShowTutorial(true);
     };
 
     return (
@@ -243,7 +250,7 @@ export function MainMenu({
 
                         {/* How to Play button */}
                         <motion.button
-                            onClick={() => handleButtonClick(() => setShowTutorial(true))}
+                            onClick={() => handleButtonClick(handleOpenTutorial)}
                             className="w-full bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-3 transition-all border border-purple-500/30"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -259,7 +266,7 @@ export function MainMenu({
             <footer className="absolute bottom-0 left-0 right-0 p-6 z-10">
                 <div className="flex justify-center items-center gap-4 text-slate-500 text-sm">
                     <button
-                        onClick={() => handleButtonClick(() => setShowTutorial(true))}
+                        onClick={() => handleButtonClick(handleOpenTutorial)}
                         className="hover:text-white transition-colors"
                     >
                         How to Play

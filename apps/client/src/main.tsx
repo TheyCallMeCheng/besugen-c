@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/index.css';
 import { ErrorBoundary } from './components/ui';
-import { isDiscordActivity, initializeDiscord, getDiscordDisplayName, getDiscordAvatarUrl } from './services/discord';
+import { isDiscordActivity, initializeDiscord, getDiscordDisplayName, getDiscordAvatarUrl, getDiscordUser } from './services/discord';
+import { PostHogProvider } from 'posthog-js/react';
+import { identifyUser } from './services/analytics';
 
 interface DiscordContext {
     isDiscord: boolean;
@@ -22,12 +24,22 @@ async function main() {
         console.log('[Main] Running as Discord Activity, initializing SDK...');
         try {
             await initializeDiscord();
+            const discordUser = getDiscordUser();
             discordContext = {
                 isDiscord: true,
                 userName: getDiscordDisplayName(),
                 avatarUrl: getDiscordAvatarUrl(),
             };
             console.log('[Main] Discord initialized:', discordContext);
+
+            // Identify user in analytics
+            if (discordUser?.id) {
+                identifyUser(discordUser.id, {
+                    username: discordUser.username,
+                    display_name: discordUser.global_name || discordUser.username,
+                    platform: 'discord',
+                });
+            }
         } catch (error) {
             console.error('[Main] Failed to initialize Discord:', error);
             // Fall back to non-Discord mode
@@ -39,9 +51,19 @@ async function main() {
     // Render the app
     ReactDOM.createRoot(document.getElementById('root')!).render(
         <React.StrictMode>
-            <ErrorBoundary>
-                <App discordContext={discordContext} />
-            </ErrorBoundary>
+            <PostHogProvider
+                apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+                options={{
+                    api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+                    defaults: '2025-05-24',
+                    capture_exceptions: true,
+                    debug: import.meta.env.MODE === 'development',
+                }}
+            >
+                <ErrorBoundary>
+                    <App discordContext={discordContext} />
+                </ErrorBoundary>
+            </PostHogProvider>
         </React.StrictMode>
     );
 }

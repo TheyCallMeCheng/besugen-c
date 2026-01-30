@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MainMenu, Lobby, GameTable } from './components/screens';
 import { SettingsModal } from './components/ui';
 import { useGameRoom } from './hooks/useGameRoom';
 import { shareActivity, isDiscordActivity } from './services/discord';
+import { trackScreenView, trackRoomCreated, trackRoomJoined, trackGameStarted, trackGameEnded } from './services/analytics';
 
 type Screen = 'home' | 'menu' | 'lobby' | 'game';
 
@@ -43,6 +44,36 @@ function App({ discordContext }: AppProps) {
     } = useGameRoom();
 
     const [showReconnectPrompt, setShowReconnectPrompt] = useState(false);
+    const prevPhaseRef = useRef<string | null>(null);
+
+    // Track screen views
+    useEffect(() => {
+        trackScreenView(currentScreen);
+    }, [currentScreen]);
+
+    // Track game started/ended based on phase changes
+    useEffect(() => {
+        const prevPhase = prevPhaseRef.current;
+        const currentPhase = gameState.phase;
+
+        // Game started: transitioning from lobby to any game phase
+        if (prevPhase === 'lobby' && currentPhase && currentPhase !== 'lobby') {
+            trackGameStarted(gameState.players.length);
+        }
+
+        // Game ended: transitioning to game_over
+        if (currentPhase === 'game_over' && prevPhase !== 'game_over') {
+            const myPlayer = gameState.players.find(p => p.id === gameState.myPlayerId);
+            const isWinner = myPlayer && myPlayer.lives > 0 && gameState.players.filter(p => p.lives > 0).length === 1;
+            trackGameEnded({
+                winner: isWinner || false,
+                roundsPlayed: gameState.round,
+                playerCount: gameState.players.length,
+            });
+        }
+
+        prevPhaseRef.current = currentPhase;
+    }, [gameState.phase]);
 
     // Check for reconnect opportunity on mount
     useEffect(() => {
@@ -77,7 +108,10 @@ function App({ discordContext }: AppProps) {
     const handleCreateRoom = async () => {
         const name = playerName || `Player${Math.floor(Math.random() * 1000)}`;
         setPlayerName(name);
-        await createRoom(name, discordContext?.avatarUrl || undefined);
+        const roomId = await createRoom(name, discordContext?.avatarUrl || undefined);
+        if (roomId) {
+            trackRoomCreated(roomId);
+        }
         setCurrentScreen('lobby');
     };
 
@@ -88,6 +122,7 @@ function App({ discordContext }: AppProps) {
         setPlayerName(name);
         const success = await joinRoom(roomCodeInput, name, discordContext?.avatarUrl || undefined);
         if (success) {
+            trackRoomJoined(roomCodeInput);
             setCurrentScreen('lobby');
         }
     };
