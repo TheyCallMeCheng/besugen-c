@@ -616,8 +616,8 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
                         </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="p-6 overflow-y-auto max-h-[50vh]">
+                    {/* Content - fixed height so buttons don't move */}
+                    <div className="p-6 h-[360px] overflow-y-auto">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
