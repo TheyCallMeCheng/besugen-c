@@ -175,3 +175,72 @@ body {
     animation: float 6s ease-in-out infinite;
     animation-delay: -3s;
 }
+
+/* Volume Sliders */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #334155;
+}
+
+input[type="range"]::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #334155;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+/* Blue slider (SFX) */
+.slider-blue::-webkit-slider-thumb {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.slider-blue::-moz-range-thumb {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Purple slider (Music) */
+.slider-purple::-webkit-slider-thumb {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+}
+
+.slider-purple::-moz-range-thumb {
+    background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+}

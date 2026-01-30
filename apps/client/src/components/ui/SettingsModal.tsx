@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { soundManager } from '../../utils/soundManager';
+import { Volume2, VolumeX, Volume1, Music, Music2 } from 'lucide-react';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -8,20 +9,70 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
-    const [isMuted, setIsMuted] = useState(soundManager.isMuted());
+    const [sfxVolume, setSfxVolume] = useState(soundManager.getVolume() * 100);
+    const [musicVolume, setMusicVolume] = useState(soundManager.getMusicVolume() * 100);
+
+    // Store previous volume for mute/unmute toggle
+    const prevSfxVolume = useRef(50);
+    const prevMusicVolume = useRef(30);
 
     // Sync with sound manager on mount/open
     useEffect(() => {
         if (isOpen) {
-            setIsMuted(soundManager.isMuted());
+            const currentSfx = soundManager.getVolume() * 100;
+            const currentMusic = soundManager.getMusicVolume() * 100;
+            setSfxVolume(currentSfx);
+            setMusicVolume(currentMusic);
+            // Store as previous if not muted
+            if (currentSfx > 0) prevSfxVolume.current = currentSfx;
+            if (currentMusic > 0) prevMusicVolume.current = currentMusic;
         }
     }, [isOpen]);
 
-    const handleToggleMute = () => {
-        const newMuteState = soundManager.toggleMute();
-        setIsMuted(newMuteState);
+    const handleSfxVolumeChange = (value: number) => {
+        if (value > 0) prevSfxVolume.current = value;
+        setSfxVolume(value);
+        soundManager.setVolume(value / 100);
+    };
+
+    const handleMusicVolumeChange = (value: number) => {
+        if (value > 0) prevMusicVolume.current = value;
+        setMusicVolume(value);
+        soundManager.setMusicVolume(value / 100);
+        // Start music if turning volume up from 0 and not already playing
+        if (value > 0 && !soundManager.isMusicPlaying()) {
+            soundManager.startMusic();
+        } else if (value === 0) {
+            soundManager.stopMusic();
+        }
+    };
+
+    const toggleSfxMute = () => {
+        if (sfxVolume > 0) {
+            // Mute - store current and set to 0
+            prevSfxVolume.current = sfxVolume;
+            handleSfxVolumeChange(0);
+        } else {
+            // Unmute - restore previous
+            handleSfxVolumeChange(prevSfxVolume.current || 50);
+        }
         soundManager.play('buttonClick');
     };
+
+    const toggleMusicMute = () => {
+        if (musicVolume > 0) {
+            // Mute - store current and set to 0
+            prevMusicVolume.current = musicVolume;
+            handleMusicVolumeChange(0);
+        } else {
+            // Unmute - restore previous
+            handleMusicVolumeChange(prevMusicVolume.current || 30);
+        }
+    };
+
+    // Get icon based on volume level
+    const SfxIcon = sfxVolume === 0 ? VolumeX : sfxVolume < 50 ? Volume1 : Volume2;
+    const MusicIcon = musicVolume === 0 ? Music : Music2;
 
     return (
         <AnimatePresence>
@@ -64,38 +115,57 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
 
                             {/* Content */}
-                            <div className="p-8 space-y-6">
-                                {/* Sound Toggle */}
-                                <div className="flex items-center justify-between">
+                            <div className="p-8 space-y-8">
+                                {/* Sound Effects Volume */}
+                                <div className="space-y-3">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isMuted ? 'bg-slate-800 text-slate-500' : 'bg-blue-600 text-white'}`}>
-                                            <span className="text-xl">
-                                                {isMuted ? '🔇' : '🔊'}
-                                            </span>
-                                        </div>
-                                        <div>
+                                        <button
+                                            onClick={toggleSfxMute}
+                                            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${sfxVolume === 0 ? 'bg-slate-800 text-slate-500 hover:bg-slate-700' : 'bg-blue-600 text-white hover:bg-blue-500'}`}
+                                        >
+                                            <SfxIcon className="w-5 h-5" />
+                                        </button>
+                                        <div className="flex-1">
                                             <p className="text-white font-medium">Sound Effects</p>
-                                            <p className="text-slate-400 text-sm">Enable game sounds</p>
+                                            <p className="text-slate-400 text-sm">Game sounds</p>
                                         </div>
+                                        <span className="text-slate-400 text-sm w-12 text-right">{Math.round(sfxVolume)}%</span>
                                     </div>
-
-                                    <button
-                                        onClick={handleToggleMute}
-                                        className={`w-14 h-8 rounded-full p-1 transition-colors relative ${isMuted ? 'bg-slate-700' : 'bg-green-500'}`}
-                                    >
-                                        <motion.div
-                                            className="w-6 h-6 bg-white rounded-full shadow-md"
-                                            animate={{ x: isMuted ? 0 : 24 }}
-                                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                        />
-                                    </button>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={sfxVolume}
+                                        onChange={(e) => handleSfxVolumeChange(Number(e.target.value))}
+                                        onMouseUp={() => soundManager.play('buttonClick')}
+                                        onTouchEnd={() => soundManager.play('buttonClick')}
+                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-blue"
+                                    />
                                 </div>
 
-                                {/* Placeholder for future settings */}
-                                <div className="pt-4 border-t border-slate-800">
-                                    <p className="text-slate-500 text-sm text-center italic">
-                                        More settings coming soon...
-                                    </p>
+                                {/* Music Volume */}
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={toggleMusicMute}
+                                            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${musicVolume === 0 ? 'bg-slate-800 text-slate-500 hover:bg-slate-700' : 'bg-purple-600 text-white hover:bg-purple-500'}`}
+                                        >
+                                            <MusicIcon className="w-5 h-5" />
+                                        </button>
+                                        <div className="flex-1">
+                                            <p className="text-white font-medium">Background Music</p>
+                                            <p className="text-slate-400 text-sm">Ambient lofi theme</p>
+                                        </div>
+                                        <span className="text-slate-400 text-sm w-12 text-right">{Math.round(musicVolume)}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={musicVolume}
+                                        onChange={(e) => handleMusicVolumeChange(Number(e.target.value))}
+                                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-purple"
+                                    />
                                 </div>
                             </div>
 
