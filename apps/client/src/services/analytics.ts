@@ -12,7 +12,12 @@ export function identifyUser(userId: string, properties?: Record<string, any>) {
 
 // Track screen/page views
 export function trackScreenView(screenName: string) {
-    posthog.capture('screen_view', { screen: screenName });
+    posthog.capture('$pageview', { screen: screenName });
+}
+
+// Track page leave
+export function trackPageLeave(screenName: string) {
+    posthog.capture('$pageleave', { screen: screenName });
 }
 
 // Track room events

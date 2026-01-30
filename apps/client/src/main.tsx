@@ -48,6 +48,10 @@ async function main() {
         console.log('[Main] Running in browser mode (not a Discord Activity)');
     }
 
+    // Debug env vars
+    console.log('[PostHog] Key:', import.meta.env.VITE_PUBLIC_POSTHOG_KEY);
+    console.log('[PostHog] Host:', import.meta.env.VITE_PUBLIC_POSTHOG_HOST);
+
     // Render the app
     ReactDOM.createRoot(document.getElementById('root')!).render(
         <React.StrictMode>
@@ -55,7 +59,9 @@ async function main() {
                 apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
                 options={{
                     api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
-                    defaults: '2025-05-24',
+                    capture_pageview: true,
+                    capture_pageleave: true,
+                    autocapture: true,
                     capture_exceptions: true,
                     debug: import.meta.env.MODE === 'development',
                 }}

@@ -3,7 +3,7 @@ import { MainMenu, Lobby, GameTable } from './components/screens';
 import { SettingsModal } from './components/ui';
 import { useGameRoom } from './hooks/useGameRoom';
 import { shareActivity, isDiscordActivity } from './services/discord';
-import { trackScreenView, trackRoomCreated, trackRoomJoined, trackGameStarted, trackGameEnded } from './services/analytics';
+import { trackScreenView, trackPageLeave, trackRoomCreated, trackRoomJoined, trackGameStarted, trackGameEnded } from './services/analytics';
 
 type Screen = 'home' | 'menu' | 'lobby' | 'game';
 
@@ -45,10 +45,17 @@ function App({ discordContext }: AppProps) {
 
     const [showReconnectPrompt, setShowReconnectPrompt] = useState(false);
     const prevPhaseRef = useRef<string | null>(null);
+    const prevScreenRef = useRef<Screen>('home');
 
-    // Track screen views
+    // Track screen views and page leaves
     useEffect(() => {
+        // Track leaving previous screen
+        if (prevScreenRef.current !== currentScreen) {
+            trackPageLeave(prevScreenRef.current);
+        }
+        // Track entering new screen
         trackScreenView(currentScreen);
+        prevScreenRef.current = currentScreen;
     }, [currentScreen]);
 
     // Track game started/ended based on phase changes
