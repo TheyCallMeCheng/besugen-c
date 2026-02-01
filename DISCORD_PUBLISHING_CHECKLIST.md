@@ -11,12 +11,15 @@
 
 ### 1. Privacy Policy
 
-- [ ] Create and host a publicly accessible Privacy Policy
+- [x] Create and host a publicly accessible Privacy Policy
+  - Created at `/privacy` (also accessible via `/privacy-policy`)
+  - GDPR compliant with PostHog analytics disclosure
 - [ ] Link it in Discord Developer Portal
 
 ### 2. Terms of Service
 
-- [ ] Create and host a publicly accessible Terms of Service
+- [x] Create and host a publicly accessible Terms of Service
+  - Created at `/terms` (also accessible via `/terms-of-service`)
 - [ ] Link it in Discord Developer Portal
 
 ### 3. Identity Verification via Stripe

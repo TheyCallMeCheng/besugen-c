@@ -274,7 +274,9 @@ export function MainMenu({
                     <span>•</span>
                     <button className="hover:text-white transition-colors">Credits</button>
                     <span>•</span>
-                    <button className="hover:text-white transition-colors">Privacy Policy</button>
+                    <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
+                    <span>•</span>
+                    <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
                     <span>•</span>
                     <span>v1.0.2</span>
                 </div>

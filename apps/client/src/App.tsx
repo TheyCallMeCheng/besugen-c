@@ -1,11 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { MainMenu, Lobby, GameTable } from './components/screens';
 import { SettingsModal } from './components/ui';
+import { PrivacyPolicy, TermsOfService } from './components/legal';
 import { useGameRoom } from './hooks/useGameRoom';
 import { shareActivity, isDiscordActivity } from './services/discord';
 import { trackScreenView, trackPageLeave, trackRoomCreated, trackRoomJoined, trackGameStarted, trackGameEnded } from './services/analytics';
 
-type Screen = 'home' | 'menu' | 'lobby' | 'game';
+type Screen = 'home' | 'menu' | 'lobby' | 'game' | 'privacy' | 'terms';
+
+// Get initial screen from URL path
+function getInitialScreen(): Screen {
+    const path = window.location.pathname;
+    if (path === '/privacy' || path === '/privacy-policy') return 'privacy';
+    if (path === '/terms' || path === '/terms-of-service') return 'terms';
+    return 'home';
+}
 
 interface DiscordContext {
     isDiscord: boolean;
@@ -18,7 +27,7 @@ interface AppProps {
 }
 
 function App({ discordContext }: AppProps) {
-    const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+    const [currentScreen, setCurrentScreen] = useState<Screen>(getInitialScreen);
     // Use Discord username if available, otherwise empty for manual input
     const [playerName, setPlayerName] = useState(discordContext?.userName || '');
     const [roomCodeInput, setRoomCodeInput] = useState('');
@@ -324,6 +333,30 @@ function App({ discordContext }: AppProps) {
                     onSubmitBid={sendBid}
                     onSettings={() => setIsSettingsOpen(true)}
                     onLeaveRoom={handleLeave}
+                />
+            );
+        }
+
+        // Privacy Policy
+        if (currentScreen === 'privacy') {
+            return (
+                <PrivacyPolicy
+                    onBack={() => {
+                        window.history.pushState({}, '', '/');
+                        setCurrentScreen('home');
+                    }}
+                />
+            );
+        }
+
+        // Terms of Service
+        if (currentScreen === 'terms') {
+            return (
+                <TermsOfService
+                    onBack={() => {
+                        window.history.pushState({}, '', '/');
+                        setCurrentScreen('home');
+                    }}
                 />
             );
         }

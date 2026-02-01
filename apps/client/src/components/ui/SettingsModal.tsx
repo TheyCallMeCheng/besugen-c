@@ -170,7 +170,21 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             </div>
 
                             {/* Footer */}
-                            <div className="bg-slate-800/30 p-6 flex justify-end">
+                            <div className="bg-slate-800/30 p-6 flex justify-between items-center">
+                                <div className="flex gap-4 text-sm">
+                                    <a
+                                        href="/privacy"
+                                        className="text-slate-400 hover:text-white transition-colors"
+                                    >
+                                        Privacy
+                                    </a>
+                                    <a
+                                        href="/terms"
+                                        className="text-slate-400 hover:text-white transition-colors"
+                                    >
+                                        Terms
+                                    </a>
+                                </div>
                                 <button
                                     onClick={() => {
                                         soundManager.play('buttonClick');
