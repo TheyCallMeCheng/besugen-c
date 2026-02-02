@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Users, Globe, Settings, Trophy, BookOpen } from 'lucide-react';
 import { soundManager } from '../../utils/soundManager';
 import { TutorialModal } from '../ui/TutorialModal';
 import { trackTutorialOpened } from '../../services/analytics';
@@ -196,7 +197,7 @@ export function MainMenu({
                         >
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                                    <span className="text-xl">👥</span>
+                                    <Users className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="text-left">
                                     <p className="font-semibold">PLAY WITH FRIENDS</p>
@@ -214,7 +215,7 @@ export function MainMenu({
                             >
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 bg-slate-700/50 rounded-lg flex items-center justify-center">
-                                        <span className="text-xl grayscale opacity-50">🌐</span>
+                                        <Globe className="w-5 h-5 text-slate-500" />
                                     </div>
                                     <div className="text-left">
                                         <p className="font-semibold">PLAY ONLINE</p>
@@ -235,7 +236,7 @@ export function MainMenu({
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <span>⚙️</span>
+                                <Settings className="w-5 h-5" />
                                 <span className="font-medium">SETTINGS</span>
                             </motion.button>
 
@@ -244,7 +245,7 @@ export function MainMenu({
                                     disabled
                                     className="w-full bg-slate-800/30 text-slate-500 rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-slate-700/30 cursor-not-allowed"
                                 >
-                                    <span className="grayscale opacity-50">📊</span>
+                                    <Trophy className="w-5 h-5" />
                                     <span className="font-medium">RANKING</span>
                                 </motion.button>
                                 <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
@@ -260,7 +261,7 @@ export function MainMenu({
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <span className="text-xl">📖</span>
+                            <BookOpen className="w-5 h-5" />
                             <span className="font-medium">HOW TO PLAY</span>
                         </motion.button>
                     </motion.div>

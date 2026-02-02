@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Crown, Eye } from 'lucide-react';
 
 interface PlayerAvatarProps {
     name: string;
@@ -98,7 +99,7 @@ export function PlayerAvatar({
                 {/* Host crown badge */}
                 {isHost && (
                     <div className="absolute -top-1 -right-1 w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <span className="text-xs">👑</span>
+                        <Crown className="w-3 h-3 text-yellow-900" />
                     </div>
                 )}
 
@@ -116,8 +117,8 @@ export function PlayerAvatar({
 
                 {/* Spectator/Eliminated badge */}
                 {isSpectator && (
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-slate-800 px-2 py-0.5 rounded text-xs text-slate-400">
-                        👁
+                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-slate-800 px-2 py-0.5 rounded text-xs text-slate-400 flex items-center">
+                        <Eye className="w-3 h-3" />
                     </div>
                 )}
             </div>

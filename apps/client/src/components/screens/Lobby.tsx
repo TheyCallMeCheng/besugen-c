@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { Check, Link2, Play, LogOut, X } from 'lucide-react';
 import { PlayerAvatar, EmptyPlayerSlot } from '../ui';
 import { soundManager } from '../../utils/soundManager';
 
@@ -107,7 +107,7 @@ export function Lobby({
                                         whileTap={{ scale: 0.9 }}
                                         title="Kick player"
                                     >
-                                        ✕
+                                        <X className="w-3 h-3" />
                                     </motion.button>
                                 )}
                             </div>
@@ -138,7 +138,7 @@ export function Lobby({
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <span>✓</span>
+                            <Check className="w-5 h-5" />
                             <span>Toggle Ready</span>
                         </motion.button>
                     )}
@@ -152,7 +152,7 @@ export function Lobby({
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                     >
-                        <span>🔗</span>
+                        <Link2 className="w-5 h-5" />
                         <span>Invite Friends</span>
                     </motion.button>
 
@@ -172,7 +172,7 @@ export function Lobby({
                             whileHover={canStart ? { scale: 1.02 } : undefined}
                             whileTap={canStart ? { scale: 0.98 } : undefined}
                         >
-                            <span>▶</span>
+                            <Play className="w-5 h-5" />
                             <span>Start Game</span>
                         </motion.button>
                     )}
@@ -186,7 +186,7 @@ export function Lobby({
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                     >
-                        <span>🚪</span>
+                        <LogOut className="w-5 h-5" />
                         <span>Leave Room</span>
                     </motion.button>
 

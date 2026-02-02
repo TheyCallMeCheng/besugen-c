@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { Crown } from 'lucide-react';
 import { PlayingCard, type CardData } from './PlayingCard';
 
 export interface TrickCardData {
@@ -128,7 +129,7 @@ export function TrickArea({
                                                 {isSmall
                                                     ? (tc.playerName.length > 8 ? tc.playerName.slice(0, 7) + '…' : tc.playerName)
                                                     : (tc.playerName.length > 25 ? tc.playerName.slice(0, 24) + '…' : tc.playerName)}
-                                                {isWinningCard && ' 👑'}
+                                                {isWinningCard && <Crown className="w-3 h-3 ml-1 inline" />}
                                             </div>
                                         </div>
                                     </motion.div>

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
+import { Settings, Eye, Play } from 'lucide-react';
 import { PlayerAvatar, PlayingCard, CardFan, BiddingModal, TrickArea, type CardData, type TrickCardData } from '../ui';
 import { soundManager } from '../../utils/soundManager';
 
@@ -183,7 +184,7 @@ export function GameTable({
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        ⚙️
+                        <Settings className="w-4 h-4 md:w-5 md:h-5" />
                     </motion.button>
 
                     {/* Exit */}
@@ -295,7 +296,7 @@ export function GameTable({
                                     {isMobile
                                         ? (myPlayer.name.length > 10 ? myPlayer.name.slice(0, 9) + '…' : myPlayer.name)
                                         : (myPlayer.name.length > 25 ? myPlayer.name.slice(0, 24) + '…' : myPlayer.name)}
-                                    {isSpectator && <span className="ml-1 md:ml-2 text-slate-400 text-xs md:text-sm">👁</span>}
+                                    {isSpectator && <Eye className="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4 text-slate-400 inline" />}
                                 </p>
                                 {/* Lives */}
                                 {myPlayer.lives !== undefined && (
@@ -344,7 +345,7 @@ export function GameTable({
                             whileHover={selectedCardId && isMyTurn ? { scale: 1.02 } : undefined}
                             whileTap={selectedCardId && isMyTurn ? { scale: 0.98 } : undefined}
                         >
-                            <span>▶</span>
+                            <Play className="w-4 h-4" />
                             <span className="font-medium">
                                 {isMobile
                                     ? (isMyTurn ? 'Play' : 'Wait')
@@ -385,7 +386,7 @@ export function GameTable({
                 {isSpectator && (
                     <div className={`absolute ${isMobile ? 'bottom-2' : 'bottom-4'} left-1/2 transform -translate-x-1/2`}>
                         <div className={`bg-slate-900/90 rounded-xl ${isMobile ? 'px-4 py-2' : 'px-6 py-4'} text-center`}>
-                            <p className={`text-slate-400 ${isMobile ? 'text-sm' : 'text-lg'}`}>👁 Spectating</p>
+                            <p className={`text-slate-400 ${isMobile ? 'text-sm' : 'text-lg'} flex items-center gap-2`}><Eye className="w-4 h-4 md:w-5 md:h-5" /> Spectating</p>
                             <p className={`text-slate-500 ${isMobile ? 'text-xs' : 'text-sm'}`}>Wait for next game</p>
                         </div>
                     </div>
