@@ -228,6 +228,26 @@ export function GameTable({
                     );
                 })}
 
+                {/* YOUR TURN Indicator */}
+                {isMyTurn && isTrickPhase && !isSpectator && (
+                    <motion.div
+                        className={`absolute inset-x-0 flex justify-center ${isMobile ? 'top-[140px]' : 'top-[20%]'} z-20`}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                    >
+                        <motion.div
+                            className={`bg-slate-900/90 border border-blue-500/50 ${isMobile ? 'px-4 py-1.5' : 'px-6 py-2'} rounded-lg backdrop-blur-sm`}
+                            animate={{ borderColor: ['rgba(59, 130, 246, 0.5)', 'rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.5)'] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                            <p className={`text-blue-400 font-semibold ${isMobile ? 'text-xs' : 'text-sm'} tracking-widest uppercase`}>
+                                Your Turn
+                            </p>
+                        </motion.div>
+                    </motion.div>
+                )}
+
                 {/* Center Play Area */}
                 <div className={`absolute left-1/2 transform -translate-x-1/2 ${isMobile ? 'top-[35%]' : 'top-1/2'} -translate-y-1/2`}>
                     {isTrickPhase ? (
@@ -343,6 +363,17 @@ export function GameTable({
                 {/* My Hand */}
                 {!isSpectator && (
                     <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 ${isMobile ? 'pb-1' : 'pb-4'}`}>
+                        {/* Subtle glow effect when it's your turn */}
+                        {isMyTurn && isTrickPhase && (
+                            <motion.div
+                                className="absolute -inset-x-8 -inset-y-4 rounded-3xl pointer-events-none"
+                                style={{
+                                    background: 'radial-gradient(ellipse at center bottom, rgba(59, 130, 246, 0.2) 0%, transparent 70%)',
+                                }}
+                                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            />
+                        )}
                         <CardFan
                             cards={myHand}
                             selectedCardId={selectedCardId}
