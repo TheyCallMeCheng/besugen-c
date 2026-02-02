@@ -159,9 +159,6 @@ export function PlayerAvatar({
                 {isReady && !isHost && !status && (
                     <p className="text-xs text-green-400">Ready</p>
                 )}
-                {score !== undefined && (
-                    <p className="text-xs text-slate-400">Score: {score}</p>
-                )}
             </div>
         </div>
     );

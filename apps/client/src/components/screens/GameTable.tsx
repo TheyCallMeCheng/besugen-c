@@ -214,12 +214,11 @@ export function GameTable({
                             <PlayerAvatar
                                 name={player.name}
                                 imageUrl={player.imageUrl}
-                                score={isMobile ? undefined : player.score}
                                 cardCount={player.cardCount}
                                 isCurrentTurn={player.id === currentPlayerId}
                                 status={player.id === currentPlayerId ? (isBiddingPhase ? 'Bidding...' : 'Playing...') : undefined}
                                 size={isMobile ? 'sm' : 'md'}
-                                lives={isMobile ? undefined : player.lives}
+                                lives={player.lives}
                                 bid={player.bid}
                                 tricksWon={player.tricksWon}
                                 isSpectator={player.isSpectator}
@@ -298,9 +297,9 @@ export function GameTable({
                                         : (myPlayer.name.length > 25 ? myPlayer.name.slice(0, 24) + '…' : myPlayer.name)}
                                     {isSpectator && <span className="ml-1 md:ml-2 text-slate-400 text-xs md:text-sm">👁</span>}
                                 </p>
-                                {/* Lives - hide on mobile */}
-                                {!isMobile && myPlayer.lives !== undefined && (
-                                    <div className="flex gap-1">
+                                {/* Lives */}
+                                {myPlayer.lives !== undefined && (
+                                    <div className={`flex gap-1 ${isMobile ? 'text-xs' : ''}`}>
                                         {[...Array(3)].map((_, i) => (
                                             <span key={i} className={i < (myPlayer.lives || 0) ? 'text-red-500' : 'text-slate-600'}>
                                                 ♥
@@ -314,9 +313,6 @@ export function GameTable({
                                         {isMobile ? `${myPlayer.bid}/${myPlayer.tricksWon ?? 0}` : `Bid: ${myPlayer.bid} | Won: ${myPlayer.tricksWon ?? 0}`}
                                     </p>
                                 )}
-                                <p className={`text-green-400 ${isMobile ? 'text-[10px]' : 'text-sm'}`}>
-                                    {isMobile ? myPlayer.score : `Score: ${myPlayer.score}`}
-                                </p>
                             </div>
                         </div>
                     </div>
