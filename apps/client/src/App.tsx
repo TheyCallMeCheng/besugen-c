@@ -326,6 +326,7 @@ function App({ discordContext }: AppProps) {
                     onToggleReady={sendReady}
                     onInviteFriends={handleShare}
                     onLeave={handleLeave}
+                    onSettings={() => setIsSettingsOpen(true)}
                     onKickPlayer={sendKickPlayer}
                 />
             );

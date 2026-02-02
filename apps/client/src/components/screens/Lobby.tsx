@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Check, Link2, Play, LogOut, X } from 'lucide-react';
+import { Check, Link2, Play, LogOut, X, Settings } from 'lucide-react';
 import { PlayerAvatar, EmptyPlayerSlot } from '../ui';
 import { soundManager } from '../../utils/soundManager';
 
@@ -24,6 +24,7 @@ interface LobbyProps {
     onToggleReady?: () => void;
     onInviteFriends?: () => void;
     onLeave?: () => void;
+    onSettings?: () => void;
     onPointsChange?: (points: number) => void;
     onKickPlayer?: (playerId: string) => void;
 }
@@ -39,6 +40,7 @@ export function Lobby({
     onToggleReady,
     onInviteFriends,
     onLeave,
+    onSettings,
     onKickPlayer,
 }: LobbyProps) {
     const emptySlots = maxPlayers - players.length;
@@ -177,29 +179,48 @@ export function Lobby({
                         </motion.button>
                     )}
 
-                    <motion.button
-                        onClick={() => {
-                            soundManager.play('buttonClick');
-                            onLeave?.();
-                        }}
-                        className="btn-secondary py-2 md:py-3 text-red-400 hover:bg-red-500/10"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        <LogOut className="w-5 h-5" />
-                        <span>Leave Room</span>
-                    </motion.button>
+                    {/* Settings and Leave row */}
+                    <div className="flex gap-3">
+                        <motion.button
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onSettings?.();
+                            }}
+                            className="btn-secondary py-2 md:py-3 flex-1"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <Settings className="w-5 h-5" />
+                            <span>Settings</span>
+                        </motion.button>
 
-                    {!hasEnoughPlayers && (
-                        <p className="text-center text-slate-500 text-xs md:text-sm">
-                            Minimum {minPlayers} players required
-                        </p>
-                    )}
-                    {hasEnoughPlayers && !allReady && nonHostPlayers.length > 0 && (
-                        <p className="text-center text-amber-500 text-xs md:text-sm">
-                            Waiting for all players to be ready
-                        </p>
-                    )}
+                        <motion.button
+                            onClick={() => {
+                                soundManager.play('buttonClick');
+                                onLeave?.();
+                            }}
+                            className="btn-secondary py-2 md:py-3 text-red-400 hover:bg-red-500/10 flex-1"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
+                            <LogOut className="w-5 h-5" />
+                            <span>Leave</span>
+                        </motion.button>
+                    </div>
+
+                    {/* Status message - fixed height to prevent layout shift */}
+                    <div className="h-5 flex items-center justify-center">
+                        {!hasEnoughPlayers && (
+                            <p className="text-slate-500 text-xs md:text-sm">
+                                Minimum {minPlayers} players required
+                            </p>
+                        )}
+                        {hasEnoughPlayers && !allReady && nonHostPlayers.length > 0 && (
+                            <p className="text-amber-500 text-xs md:text-sm">
+                                Waiting for all players to be ready
+                            </p>
+                        )}
+                    </div>
                 </motion.div>
             </main>
         </div>
