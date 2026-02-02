@@ -48,11 +48,15 @@ function App({ discordContext }: AppProps) {
         sendStartGame,
         sendBid,
         sendPlayCard,
+        sendKickPlayer,
         sortHand,
+        wasKicked,
+        clearKicked,
         isHost,
     } = useGameRoom();
 
     const [showReconnectPrompt, setShowReconnectPrompt] = useState(false);
+    const [showKickedModal, setShowKickedModal] = useState(false);
     const prevPhaseRef = useRef<string | null>(null);
     const prevScreenRef = useRef<Screen>('home');
 
@@ -97,6 +101,20 @@ function App({ discordContext }: AppProps) {
             setShowReconnectPrompt(true);
         }
     }, []);
+
+    // Handle kicked from room
+    useEffect(() => {
+        if (wasKicked) {
+            setShowKickedModal(true);
+            setCurrentScreen('home');
+        }
+    }, [wasKicked]);
+
+    // Handle kicked modal dismiss
+    const handleKickedDismiss = () => {
+        setShowKickedModal(false);
+        clearKicked();
+    };
 
     // Handle reconnection
     const handleReconnect = async () => {
@@ -303,10 +321,12 @@ function App({ discordContext }: AppProps) {
                     maxPlayers={6}
                     isHost={isHost}
                     minPlayers={2}
+                    myPlayerId={gameState.myPlayerId}
                     onStartGame={sendStartGame}
                     onToggleReady={sendReady}
                     onInviteFriends={handleShare}
                     onLeave={handleLeave}
+                    onKickPlayer={sendKickPlayer}
                 />
             );
         }
@@ -394,6 +414,23 @@ function App({ discordContext }: AppProps) {
                                 {isConnecting ? 'Reconnecting...' : 'Rejoin Game'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+            {/* Kicked Modal */}
+            {showKickedModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-slate-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl border border-slate-700">
+                        <h2 className="text-xl font-bold text-white mb-3">Removed from Room</h2>
+                        <p className="text-slate-400 mb-6">
+                            You have been kicked from the room by the host.
+                        </p>
+                        <button
+                            onClick={handleKickedDismiss}
+                            className="w-full bg-slate-700 text-white font-semibold rounded-lg px-4 py-3 hover:bg-slate-600 transition-colors"
+                        >
+                            OK
+                        </button>
                     </div>
                 </div>
             )}

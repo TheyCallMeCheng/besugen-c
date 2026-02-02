@@ -156,6 +156,7 @@ export function useGameRoom() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSorted, setIsSorted] = useState(false);
+  const [wasKicked, setWasKicked] = useState(false);
 
   // Update game state from room
   const updateState = useCallback((r: Room) => {
@@ -188,6 +189,10 @@ export function useGameRoom() {
 
       newRoom.onLeave((code) => {
         console.log('[Room] Left with code:', code);
+        if (code === 4000) {
+          // Kicked by host
+          setWasKicked(true);
+        }
         setRoom(null);
         setGameState(initialState);
       });
@@ -199,7 +204,7 @@ export function useGameRoom() {
       });
 
       setRoom(newRoom);
-      
+
       // Poll for initial state update (workaround for timing issue)
       let attempts = 0;
       const pollInterval = setInterval(() => {
@@ -240,6 +245,10 @@ export function useGameRoom() {
       });
       newRoom.onLeave((code) => {
         console.log('[Room] Left with code:', code);
+        if (code === 4000) {
+          // Kicked by host
+          setWasKicked(true);
+        }
         setRoom(null);
         setGameState(initialState);
       });
@@ -309,6 +318,10 @@ export function useGameRoom() {
       });
       newRoom.onLeave((code) => {
         console.log('[Room] Left with code:', code);
+        if (code === 4000) {
+          // Kicked by host
+          setWasKicked(true);
+        }
         setRoom(null);
         setGameState(initialState);
       });
@@ -348,10 +361,16 @@ export function useGameRoom() {
   const sendStartGame = useCallback(() => colyseusService.sendStartGame(), []);
   const sendBid = useCallback((bid: number) => colyseusService.sendBid(bid), []);
   const sendPlayCard = useCallback((cardId: string) => colyseusService.sendPlayCard(cardId), []);
+  const sendKickPlayer = useCallback((playerId: string) => colyseusService.sendKickPlayer(playerId), []);
   
   // Sort hand (client-side only) - once sorted, stays sorted
   const sortHand = useCallback(() => {
     setIsSorted(true);
+  }, []);
+
+  // Clear kicked state
+  const clearKicked = useCallback(() => {
+    setWasKicked(false);
   }, []);
 
   // Cleanup on unmount
@@ -385,7 +404,10 @@ export function useGameRoom() {
     sendStartGame,
     sendBid,
     sendPlayCard,
+    sendKickPlayer,
     sortHand,
+    wasKicked,
+    clearKicked,
     isHost: gameState.hostId === gameState.myPlayerId,
     isMyTurn: gameState.currentPlayerId === gameState.myPlayerId,
   };

@@ -42,6 +42,10 @@ export class GameRoom extends Room<GameStateSchema> {
     this.onMessage('play_card', (client, message: { cardId: string }) => {
       this.handlePlayCard(client, message.cardId);
     });
+
+    this.onMessage('kick_player', (client, message: { playerId: string }) => {
+      this.handleKickPlayer(client, message.playerId);
+    });
   }
 
   onJoin(client: Client, options: RoomOptions) {
@@ -171,6 +175,49 @@ export class GameRoom extends Room<GameStateSchema> {
     if (player && this.state.phase === GamePhase.LOBBY) {
       player.status = player.status === PlayerStatus.READY ? PlayerStatus.WAITING : PlayerStatus.READY;
     }
+  }
+
+  private handleKickPlayer(client: Client, targetPlayerId: string) {
+    // Only host can kick players
+    if (client.sessionId !== this.state.hostId) {
+      logger.log(`[GameRoom] Non-host ${client.sessionId} tried to kick player`);
+      return;
+    }
+
+    // Only allow kicks in lobby
+    if (this.state.phase !== GamePhase.LOBBY) {
+      logger.log(`[GameRoom] Cannot kick players outside of lobby`);
+      return;
+    }
+
+    // Cannot kick yourself
+    if (targetPlayerId === client.sessionId) {
+      logger.log(`[GameRoom] Host tried to kick themselves`);
+      return;
+    }
+
+    const targetPlayer = this.state.players.get(targetPlayerId);
+    if (!targetPlayer) {
+      logger.log(`[GameRoom] Target player ${targetPlayerId} not found`);
+      return;
+    }
+
+    logger.log(`[GameRoom] Host kicking player ${targetPlayer.name} (${targetPlayerId})`);
+
+    // Remove the player from the room state
+    this.state.players.delete(targetPlayerId);
+
+    // Find and disconnect the client
+    const targetClient = this.clients.find(c => c.sessionId === targetPlayerId);
+    if (targetClient) {
+      targetClient.leave(4000); // Custom close code for "kicked"
+    }
+
+    // Broadcast kick event
+    this.broadcast('player_kicked', {
+      playerId: targetPlayerId,
+      playerName: targetPlayer.name,
+    });
   }
 
   private handleStartGame(client: Client) {

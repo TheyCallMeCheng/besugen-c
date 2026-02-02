@@ -161,6 +161,10 @@ class ColyseusService {
   sendPlayCard(cardId: string): void {
     this.room?.send('play_card', { cardId });
   }
+
+  sendKickPlayer(playerId: string): void {
+    this.room?.send('kick_player', { playerId });
+  }
 }
 
 // Singleton instance

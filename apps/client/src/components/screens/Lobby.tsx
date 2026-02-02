@@ -19,11 +19,13 @@ interface LobbyProps {
     isHost?: boolean;
     pointsToWin?: number;
     minPlayers?: number;
+    myPlayerId?: string;
     onStartGame?: () => void;
     onToggleReady?: () => void;
     onInviteFriends?: () => void;
     onLeave?: () => void;
     onPointsChange?: (points: number) => void;
+    onKickPlayer?: (playerId: string) => void;
 }
 
 export function Lobby({
@@ -32,13 +34,18 @@ export function Lobby({
     maxPlayers = 6,
     isHost = false,
     minPlayers = 2,
+    myPlayerId,
     onStartGame,
     onToggleReady,
     onInviteFriends,
     onLeave,
+    onKickPlayer,
 }: LobbyProps) {
     const emptySlots = maxPlayers - players.length;
-    const canStart = players.length >= minPlayers;
+    const allReady = players.filter(p => !p.isHost).every(p => p.isReady);
+    const nonHostPlayers = players.filter(p => !p.isHost);
+    const hasEnoughPlayers = players.length >= minPlayers;
+    const canStart = hasEnoughPlayers && (nonHostPlayers.length === 0 || allReady);
 
     return (
         <div className="min-h-screen bg-lobby flex flex-col">
@@ -79,15 +86,31 @@ export function Lobby({
                     <div className="flex justify-center gap-4 md:gap-8 flex-wrap">
                         {/* Existing players */}
                         {players.map((player) => (
-                            <PlayerAvatar
-                                key={player.id}
-                                name={player.name}
-                                imageUrl={player.imageUrl}
-                                isHost={player.isHost}
-                                isReady={player.isReady}
-                                size="md"
-                                className="md:scale-125"
-                            />
+                            <div key={player.id} className="relative group">
+                                <PlayerAvatar
+                                    name={player.name}
+                                    imageUrl={player.imageUrl}
+                                    isHost={player.isHost}
+                                    isReady={player.isReady}
+                                    size="md"
+                                    className="md:scale-125"
+                                />
+                                {/* Kick button - only shown to host for non-host players */}
+                                {isHost && !player.isHost && player.id !== myPlayerId && (
+                                    <motion.button
+                                        onClick={() => {
+                                            soundManager.play('buttonClick');
+                                            onKickPlayer?.(player.id);
+                                        }}
+                                        className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        title="Kick player"
+                                    >
+                                        ✕
+                                    </motion.button>
+                                )}
+                            </div>
                         ))}
 
                         {/* Empty slots */}
@@ -167,9 +190,14 @@ export function Lobby({
                         <span>Leave Room</span>
                     </motion.button>
 
-                    {!canStart && (
+                    {!hasEnoughPlayers && (
                         <p className="text-center text-slate-500 text-xs md:text-sm">
-                            ⚠️ Minimum {minPlayers} players required
+                            Minimum {minPlayers} players required
+                        </p>
+                    )}
+                    {hasEnoughPlayers && !allReady && nonHostPlayers.length > 0 && (
+                        <p className="text-center text-amber-500 text-xs md:text-sm">
+                            Waiting for all players to be ready
                         </p>
                     )}
                 </motion.div>
