@@ -263,22 +263,26 @@ export function MainMenu({
             </main>
 
             {/* Footer */}
-            <footer className="absolute bottom-0 left-0 right-0 p-6 z-10">
-                <div className="flex justify-center items-center gap-4 text-slate-500 text-sm">
-                    <button
-                        onClick={() => handleButtonClick(handleOpenTutorial)}
-                        className="hover:text-white transition-colors"
-                    >
-                        How to Play
-                    </button>
-                    <span>•</span>
-                    <button className="hover:text-white transition-colors">Credits</button>
-                    <span>•</span>
-                    <a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a>
-                    <span>•</span>
-                    <a href="/terms" className="hover:text-white transition-colors">Terms of Service</a>
-                    <span>•</span>
-                    <span>v1.0.2</span>
+            <footer className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-2 md:gap-4 text-slate-500 text-xs md:text-sm">
+                    <div className="flex items-center gap-3 md:gap-4">
+                        <button
+                            onClick={() => handleButtonClick(handleOpenTutorial)}
+                            className="hover:text-white transition-colors"
+                        >
+                            How to Play
+                        </button>
+                        <span className="hidden md:inline">•</span>
+                        <button className="hover:text-white transition-colors">Credits</button>
+                    </div>
+                    <div className="flex items-center gap-3 md:gap-4">
+                        <span className="hidden md:inline">•</span>
+                        <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+                        <span>•</span>
+                        <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+                        <span>•</span>
+                        <span>v1.0.2</span>
+                    </div>
                 </div>
             </footer>
 
