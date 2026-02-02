@@ -35,10 +35,10 @@ export function TrickArea({
     size = 'md',
 }: TrickAreaProps) {
     const isSmall = size === 'sm';
-    const containerSize = isSmall ? 'w-44 h-44' : 'w-72 h-72';
+    const containerSize = isSmall ? 'w-52 h-52' : 'w-72 h-72';
     const cardSize = isSmall ? 'sm' : 'md';
-    const emptyAreaSize = isSmall ? 'w-14 h-20' : 'w-24 h-32';
-    const stackSize = isSmall ? 'w-14 h-20' : 'w-24 h-32';
+    const emptyAreaSize = isSmall ? 'w-[72px] h-[100px]' : 'w-24 h-32';
+    const stackSize = isSmall ? 'w-[72px] h-[100px]' : 'w-24 h-32';
 
     return (
         <div className={`relative ${containerSize} flex items-center justify-center`}>

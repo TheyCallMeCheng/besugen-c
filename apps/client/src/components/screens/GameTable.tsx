@@ -260,7 +260,7 @@ export function GameTable({
                         />
                     ) : (
                         /* Default center area */
-                        <div className={`${isMobile ? 'w-40 h-40' : 'w-72 h-72'} rounded-full border-2 border-table-border/30 flex items-center justify-center gap-2 md:gap-6`}>
+                        <div className={`${isMobile ? 'w-52 h-52' : 'w-72 h-72'} rounded-full border-2 border-table-border/30 flex items-center justify-center gap-2 md:gap-6`}>
                             {/* Deck */}
                             <div className="relative">
                                 <PlayingCard faceUp={false} size={isMobile ? 'sm' : 'md'} />
@@ -285,7 +285,7 @@ export function GameTable({
 
                 {/* My Player Info (bottom left) */}
                 {myPlayer && (
-                    <div className={`absolute ${isMobile ? 'bottom-28 left-2' : 'bottom-6 left-6'}`}>
+                    <div className={`absolute ${isMobile ? 'bottom-32 left-2' : 'bottom-6 left-6'}`}>
                         <div className={`flex items-center gap-2 md:gap-3 bg-slate-900/80 rounded-xl px-2 md:px-4 py-2 md:py-3`}>
                             <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} rounded-full flex items-center justify-center ${isSpectator ? 'bg-slate-700' : 'bg-gradient-to-br from-blue-500 to-purple-500'
                                 }`}>
@@ -324,7 +324,7 @@ export function GameTable({
 
                 {/* Action Buttons (only during trick phase and not spectating) */}
                 {isTrickPhase && !isSpectator && (
-                    <div className={`absolute ${isMobile ? 'bottom-28 right-2' : 'bottom-64 left-1/2 transform -translate-x-1/2'} flex items-center gap-2 md:gap-4`}>
+                    <div className={`absolute ${isMobile ? 'bottom-32 right-2' : 'bottom-64 left-1/2 transform -translate-x-1/2'} flex items-center gap-2 md:gap-4`}>
                         <motion.button
                             onClick={() => {
                                 soundManager.play('sortHand');
@@ -379,7 +379,7 @@ export function GameTable({
                             selectedCardId={selectedCardId}
                             onSelectCard={(cardId) => setSelectedCardId(cardId)}
                             spread={isMobile ? 3 : 5}
-                            xSpacing={isMobile ? 18 : 30}
+                            xSpacing={isMobile ? 26 : 30}
                             size={isMobile ? 'sm' : 'lg'}
                         />
                     </div>

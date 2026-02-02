@@ -35,13 +35,13 @@ interface PlayingCardProps {
 }
 
 const SIZE_CLASSES = {
-    sm: 'w-14 h-20',
+    sm: 'w-[72px] h-[100px]',
     md: 'w-24 h-32',
     lg: 'w-32 h-44',
 };
 
 const TEXT_SIZES = {
-    sm: { corner: 'text-xs', symbol: 'text-xs', center: 'text-lg' },
+    sm: { corner: 'text-sm', symbol: 'text-sm', center: 'text-2xl' },
     md: { corner: 'text-sm', symbol: 'text-sm', center: 'text-3xl' },
     lg: { corner: 'text-base', symbol: 'text-lg', center: 'text-5xl' },
 };
@@ -70,8 +70,8 @@ export function PlayingCard({
             >
                 {/* Decorative pattern */}
                 <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-8 h-8 rounded-full border-2 border-white/30 flex items-center justify-center">
-                        <span className="text-white/40 text-xl">∞</span>
+                    <div className={`${size === 'sm' ? 'w-8 h-8' : 'w-10 h-10'} rounded-full border-2 border-white/30 flex items-center justify-center`}>
+                        <span className={`text-white/40 ${size === 'sm' ? 'text-lg' : 'text-xl'}`}>∞</span>
                     </div>
                 </div>
             </motion.div>
@@ -127,7 +127,7 @@ interface CardFanProps {
 }
 
 const FAN_HEIGHT = {
-    sm: 'h-24',
+    sm: 'h-28',
     md: 'h-36',
     lg: 'h-48',
 };
