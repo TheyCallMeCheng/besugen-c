@@ -206,24 +206,26 @@ export function MainMenu({
                             <span className="text-blue-300">›</span>
                         </motion.button>
 
-                        {/* Play Online - Secondary action */}
-                        <motion.button
-                            onClick={() => handleButtonClick(onPlayOnline)}
-                            className="w-full bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl px-6 py-4 flex items-center justify-between transition-all border border-slate-700/50"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
-                                    <span className="text-xl">🌐</span>
+                        {/* Play Online - Coming Soon */}
+                        <div className="relative">
+                            <motion.button
+                                disabled
+                                className="w-full bg-slate-800/30 text-slate-500 rounded-xl px-6 py-4 flex items-center justify-between transition-all border border-slate-700/30 cursor-not-allowed"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 bg-slate-700/50 rounded-lg flex items-center justify-center">
+                                        <span className="text-xl grayscale opacity-50">🌐</span>
+                                    </div>
+                                    <div className="text-left">
+                                        <p className="font-semibold">PLAY ONLINE</p>
+                                        <p className="text-slate-600 text-sm">Match with random players</p>
+                                    </div>
                                 </div>
-                                <div className="text-left">
-                                    <p className="font-semibold">PLAY ONLINE</p>
-                                    <p className="text-slate-400 text-sm">Match with random players</p>
-                                </div>
+                            </motion.button>
+                            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                                SOON
                             </div>
-                            <span className="text-slate-500">›</span>
-                        </motion.button>
+                        </div>
 
                         {/* Settings and Ranking row */}
                         <div className="flex gap-4">
@@ -237,15 +239,18 @@ export function MainMenu({
                                 <span className="font-medium">SETTINGS</span>
                             </motion.button>
 
-                            <motion.button
-                                onClick={() => handleButtonClick(onRanking)}
-                                className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-slate-700/50"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                <span>📊</span>
-                                <span className="font-medium">RANKING</span>
-                            </motion.button>
+                            <div className="relative flex-1">
+                                <motion.button
+                                    disabled
+                                    className="w-full bg-slate-800/30 text-slate-500 rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-slate-700/30 cursor-not-allowed"
+                                >
+                                    <span className="grayscale opacity-50">📊</span>
+                                    <span className="font-medium">RANKING</span>
+                                </motion.button>
+                                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                                    SOON
+                                </div>
+                            </div>
                         </div>
 
                         {/* How to Play button */}
