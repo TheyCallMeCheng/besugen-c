@@ -200,6 +200,8 @@ body {
         opacity: 0.65;
         mix-blend-mode: screen;
         animation: fluid-drift 12s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
     }
 
     .fluid-button::after {
@@ -210,6 +212,8 @@ body {
     .fluid-button {
         position: relative;
         isolation: isolate;
+        overflow: hidden;
+        border-radius: inherit;
     }
 
     .fluid-button > * {

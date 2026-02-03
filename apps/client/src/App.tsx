@@ -264,7 +264,7 @@ function App({ discordContext }: AppProps) {
                         <button
                             onClick={handleCreateRoom}
                             disabled={isConnecting}
-                            className="fluid-button w-full rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 text-white font-semibold px-6 py-4 mb-5 hover:opacity-95 transition-opacity disabled:opacity-50"
+                            className="fluid-button w-full rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 text-white font-semibold px-6 py-4 mb-5 hover:opacity-95 transition-opacity disabled:opacity-50 overflow-hidden"
                         >
                             {isConnecting ? 'Connecting...' : 'Create Room'}
                         </button>
