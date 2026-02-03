@@ -50,9 +50,17 @@ export function Lobby({
     const canStart = hasEnoughPlayers && (nonHostPlayers.length === 0 || allReady);
 
     return (
-        <div className="min-h-screen bg-lobby flex flex-col">
+        <div className="min-h-screen bg-lobby flex flex-col relative overflow-hidden">
+            <div className="lobby-vignette" />
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute -top-24 left-10 h-72 w-72 rounded-full bg-cyan-400/15 blur-3xl animate-float" />
+                <div className="absolute top-16 right-10 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl animate-float-delayed" />
+                <div className="absolute bottom-8 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-300/10 blur-3xl animate-sway" />
+            </div>
+
             {/* Header */}
-            <header className="p-4 md:p-6 flex justify-between items-center">
+            <header className="p-4 md:p-6 flex justify-center relative z-10">
+                <div className="glass-panel w-full max-w-5xl px-4 md:px-6 py-4 flex justify-between items-center">
                 <div>
                     {/* Logo and Title - hidden on mobile */}
                     <div className="hidden md:flex items-center gap-3 mb-2">
@@ -72,16 +80,18 @@ export function Lobby({
                 </div>
 
                 {/* Room Code */}
-                <div className="bg-slate-800/50 rounded-lg px-3 md:px-6 py-2 md:py-3 border border-slate-700/50">
-                    <span className="font-mono text-white font-bold tracking-wider md:tracking-widest text-base md:text-xl select-all">{roomCode}</span>
+                <div className="room-code-card">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mb-1">Room Code</div>
+                    <span className="font-mono text-white font-bold text-base md:text-xl select-all">{roomCode}</span>
+                </div>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-4 md:py-8">
+            <main className="flex-1 flex flex-col items-center justify-center px-4 md:px-6 py-4 md:py-8 relative z-10">
                 {/* Player Slots */}
                 <motion.div
-                    className="card-panel p-4 md:p-8 mb-4 md:mb-8 w-full max-w-3xl"
+                    className="glass-panel p-4 md:p-8 mb-4 md:mb-8 w-full max-w-3xl"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
@@ -136,7 +146,7 @@ export function Lobby({
                                 soundManager.play('buttonClick');
                                 onToggleReady?.();
                             }}
-                            className="btn-primary py-3 md:py-4 bg-amber-600 hover:bg-amber-700"
+                            className="fluid-button w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium py-3 md:py-4 shadow-lg shadow-amber-500/25"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
@@ -167,8 +177,8 @@ export function Lobby({
                                 }
                             }}
                             disabled={!canStart}
-                            className={`py-3 md:py-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${canStart
-                                ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/25'
+                            className={`py-3 md:py-4 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${canStart
+                                ? 'fluid-button bg-gradient-to-r from-emerald-500 via-green-500 to-lime-400 text-white shadow-lg shadow-green-500/25'
                                 : 'bg-slate-700 text-slate-400 cursor-not-allowed'
                                 }`}
                             whileHover={canStart ? { scale: 1.02 } : undefined}
