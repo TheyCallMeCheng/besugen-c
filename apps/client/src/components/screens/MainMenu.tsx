@@ -105,13 +105,8 @@ export function MainMenu({
 
     return (
         <div className="min-h-screen bg-main-menu relative overflow-hidden">
-            {/* Radial gradient vignette overlay - darker edges, lighter center */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    background: 'radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(10, 15, 30, 0.4) 70%, rgba(5, 8, 20, 0.7) 100%)',
-                }}
-            />
+            {/* Soft vignette + grain to avoid banding */}
+            <div className="menu-vignette" />
 
             {/* Ambient glow orbs */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -208,7 +203,7 @@ export function MainMenu({
                         {/* Play with Friends - Primary action */}
                         <motion.button
                             onClick={() => handleButtonClick(onPlayWithFriends)}
-                            className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 text-white px-6 py-4 flex items-center justify-between transition-all shadow-lg shadow-cyan-500/25"
+                            className="group fluid-button relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 text-white px-6 py-4 flex items-center justify-between transition-all shadow-lg shadow-cyan-500/25"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
