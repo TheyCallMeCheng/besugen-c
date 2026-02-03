@@ -242,13 +242,18 @@ export function GameTable({
                         exit={{ opacity: 0, y: -10 }}
                     >
                         <motion.div
-                            className={`bg-slate-900/90 border border-blue-500/50 ${isMobile ? 'px-4 py-1.5' : 'px-6 py-2'} rounded-lg backdrop-blur-sm`}
-                            animate={{ borderColor: ['rgba(59, 130, 246, 0.5)', 'rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.5)'] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            className={`relative overflow-hidden ${isMobile ? 'px-4 py-1.5 text-xs' : 'px-6 py-2 text-sm'} rounded-full border border-cyan-300/40 bg-gradient-to-r from-cyan-500/20 via-blue-500/30 to-emerald-500/20 text-cyan-50 shadow-[0_0_18px_rgba(34,211,238,0.35)] backdrop-blur-md`}
+                            animate={{ boxShadow: ['0 0 12px rgba(34,211,238,0.25)', '0 0 24px rgba(34,211,238,0.45)', '0 0 12px rgba(34,211,238,0.25)'] }}
+                            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
                         >
-                            <p className={`text-blue-400 font-semibold ${isMobile ? 'text-xs' : 'text-sm'} tracking-widest uppercase`}>
-                                Your Turn
-                            </p>
+                            <span
+                                className="absolute inset-0 opacity-70"
+                                style={{ background: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.25), transparent 55%)' }}
+                            />
+                            <div className="relative flex items-center gap-2 font-semibold tracking-[0.25em] uppercase">
+                                <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+                                <span>Your Turn</span>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
