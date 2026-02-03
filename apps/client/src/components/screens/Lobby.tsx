@@ -146,7 +146,7 @@ export function Lobby({
                                 soundManager.play('buttonClick');
                                 onToggleReady?.();
                             }}
-                            className="fluid-button w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium py-3 md:py-4 shadow-lg shadow-amber-500/25"
+                            className="fluid-button w-full rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium py-3 md:py-4 shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
