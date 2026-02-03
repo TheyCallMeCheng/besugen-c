@@ -1,19 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Base styles */
 :root {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Outfit', system-ui, sans-serif;
     line-height: 1.5;
     font-weight: 400;
     color-scheme: dark;
+    --font-body: 'Outfit', system-ui, sans-serif;
+    --font-display: 'Bungee', 'Outfit', system-ui, sans-serif;
+    --menu-glow: rgba(59, 130, 246, 0.35);
+    --menu-accent: rgba(34, 211, 238, 0.4);
+    --felt-dark: #0d1a18;
+    --felt-mid: #173529;
+    --felt-light: #2b5a47;
 }
 
 body {
     margin: 0;
     min-height: 100vh;
     color: #ffffff;
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -48,12 +58,26 @@ body {
 
     /* Main Menu Background */
     .bg-main-menu {
-        background: linear-gradient(135deg, #1a1c2e 0%, #252840 50%, #1a1c2e 100%);
+        background-color: #0b1121;
+        background-image:
+            radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.25) 0%, transparent 42%),
+            radial-gradient(circle at 82% 18%, rgba(34, 197, 94, 0.2) 0%, transparent 40%),
+            radial-gradient(circle at 70% 78%, rgba(251, 191, 36, 0.18) 0%, transparent 38%),
+            linear-gradient(135deg, #0b1020 0%, #172038 55%, #0b1020 100%),
+            repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 10px);
+        background-blend-mode: screen, screen, screen, normal, soft-light;
     }
 
     /* Game Table Background */
     .bg-game-table {
-        background: radial-gradient(ellipse at center, #2d4a3e 0%, #1a2f26 50%, #0f1a14 100%);
+        background-color: var(--felt-dark);
+        background-image:
+            radial-gradient(circle at 20% 20%, rgba(52, 211, 153, 0.18) 0%, transparent 45%),
+            radial-gradient(circle at 80% 30%, rgba(248, 250, 116, 0.14) 0%, transparent 45%),
+            radial-gradient(circle at 50% 90%, rgba(56, 189, 248, 0.12) 0%, transparent 55%),
+            radial-gradient(ellipse at center, var(--felt-light) 0%, var(--felt-mid) 45%, var(--felt-dark) 100%),
+            repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 6px);
+        background-blend-mode: screen, screen, screen, normal, soft-light;
     }
 
     /* Lobby Background */
@@ -81,6 +105,30 @@ body {
     /* Cards */
     .card-panel {
         @apply bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl;
+    }
+
+    .text-display {
+        font-family: var(--font-display);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .menu-shell {
+        @apply relative rounded-3xl border border-white/10 bg-slate-950/60 backdrop-blur-xl;
+        box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.04),
+            0 30px 60px rgba(8, 15, 35, 0.6);
+    }
+
+    .menu-shell::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 28px;
+        background: linear-gradient(120deg, rgba(56, 189, 248, 0.4), rgba(34, 197, 94, 0.25), rgba(251, 191, 36, 0.35));
+        filter: blur(12px);
+        opacity: 0.6;
+        z-index: -1;
     }
 
     /* Playing Card Base */
@@ -174,6 +222,22 @@ body {
 .animate-float-delayed {
     animation: float 6s ease-in-out infinite;
     animation-delay: -3s;
+}
+
+.animate-sway {
+    animation: sway 8s ease-in-out infinite;
+}
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-2deg);
+    }
+
+    50% {
+        transform: translateY(-12px) rotate(2deg);
+    }
 }
 
 /* Volume Sliders */

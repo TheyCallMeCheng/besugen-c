@@ -142,11 +142,16 @@ export function GameTable({
 
     return (
         <div className="min-h-screen bg-game-table relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl animate-float" />
+                <div className="absolute top-20 right-10 h-56 w-56 rounded-full bg-cyan-400/15 blur-3xl animate-float-delayed" />
+                <div className="absolute bottom-10 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-300/10 blur-3xl animate-sway" />
+            </div>
             {/* Header */}
             <header className="absolute top-0 left-0 right-0 p-2 md:p-4 flex justify-between items-center z-10">
                 <div className="flex items-center gap-1 md:gap-4">
                     {/* Logo - icon only on mobile */}
-                    <div className="flex items-center gap-2 bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2">
+                    <div className="flex items-center gap-2 bg-slate-950/70 border border-white/10 rounded-lg px-2 md:px-4 py-1.5 md:py-2 backdrop-blur">
                         <div className="w-6 h-6 md:w-8 md:h-8 bg-green-600 rounded-lg flex items-center justify-center">
                             <span className="text-white text-xs md:text-sm">🂠</span>
                         </div>
@@ -154,12 +159,12 @@ export function GameTable({
                     </div>
 
                     {/* Round indicator */}
-                    <div className="bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2">
+                    <div className="bg-slate-950/70 border border-white/10 rounded-lg px-2 md:px-4 py-1.5 md:py-2 backdrop-blur">
                         <span className="text-slate-400 text-xs md:text-base">R{round}</span>
                     </div>
 
                     {/* Phase indicator - hidden on mobile, shown in center area instead */}
-                    <div className="bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2 hidden md:block">
+                    <div className="bg-slate-950/70 border border-white/10 rounded-lg px-2 md:px-4 py-1.5 md:py-2 hidden md:block backdrop-blur">
                         <span className={`capitalize ${phase === 'bidding' ? 'text-amber-400' :
                             phase === 'trick' ? 'text-green-400' :
                                 phase === 'game_over' ? 'text-red-400' :
@@ -172,7 +177,7 @@ export function GameTable({
 
                 <div className="flex items-center gap-1 md:gap-4">
                     {/* Cards per round */}
-                    <div className="bg-slate-900/80 rounded-lg px-2 md:px-4 py-1.5 md:py-2 flex items-center gap-1 md:gap-2">
+                    <div className="bg-slate-950/70 border border-white/10 rounded-lg px-2 md:px-4 py-1.5 md:py-2 flex items-center gap-1 md:gap-2 backdrop-blur">
                         <span className="text-slate-400 text-xs hidden md:inline">CARDS</span>
                         <span className="text-white font-bold text-sm md:text-xl">{cardCount}</span>
                     </div>
@@ -180,7 +185,7 @@ export function GameTable({
                     {/* Settings */}
                     <motion.button
                         onClick={onSettings}
-                        className="w-8 h-8 md:w-10 md:h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors text-sm md:text-base"
+                        className="w-8 h-8 md:w-10 md:h-10 bg-slate-950/70 border border-white/10 rounded-lg flex items-center justify-center text-slate-300 hover:text-white transition-colors text-sm md:text-base backdrop-blur"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
@@ -190,7 +195,7 @@ export function GameTable({
                     {/* Exit */}
                     <motion.button
                         onClick={onLeaveRoom}
-                        className="w-8 h-8 md:w-10 md:h-10 bg-slate-900/80 rounded-lg flex items-center justify-center text-red-400 hover:text-red-300 hover:bg-red-900/50 transition-colors text-sm md:text-base"
+                        className="w-8 h-8 md:w-10 md:h-10 bg-slate-950/70 border border-white/10 rounded-lg flex items-center justify-center text-red-300 hover:text-red-200 hover:bg-red-900/40 transition-colors text-sm md:text-base backdrop-blur"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
@@ -260,7 +265,11 @@ export function GameTable({
                         />
                     ) : (
                         /* Default center area */
-                        <div className={`${isMobile ? 'w-52 h-52' : 'w-72 h-72'} rounded-full border-2 border-table-border/30 flex items-center justify-center gap-2 md:gap-6`}>
+                        <div className={`${isMobile ? 'w-52 h-52' : 'w-72 h-72'} rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm flex items-center justify-center gap-2 md:gap-6 shadow-[0_0_40px_rgba(56,189,248,0.15)] relative overflow-hidden`}>
+                            <div
+                                className="absolute inset-0 opacity-60"
+                                style={{ background: 'radial-gradient(circle at top, rgba(255,255,255,0.18), transparent 60%)' }}
+                            />
                             {/* Deck */}
                             <div className="relative">
                                 <PlayingCard faceUp={false} size={isMobile ? 'sm' : 'md'} />
