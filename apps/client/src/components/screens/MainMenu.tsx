@@ -105,13 +105,15 @@ export function MainMenu({
 
     return (
         <div className="min-h-screen bg-main-menu relative overflow-hidden">
-            {/* Radial gradient vignette overlay - darker edges, lighter center */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    background: 'radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(10, 15, 30, 0.4) 70%, rgba(5, 8, 20, 0.7) 100%)',
-                }}
-            />
+            {/* Soft vignette + grain to avoid banding */}
+            <div className="menu-vignette" />
+
+            {/* Ambient glow orbs */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan-400/20 blur-3xl animate-sway" />
+                <div className="absolute top-28 -left-10 h-56 w-56 rounded-full bg-emerald-400/20 blur-3xl animate-float" />
+                <div className="absolute bottom-10 right-6 h-64 w-64 rounded-full bg-amber-300/20 blur-3xl animate-float-delayed" />
+            </div>
 
             {/* Floating decorations - card suit symbols, closer to center */}
             <div className="absolute inset-0 z-0 pointer-events-none">
@@ -126,7 +128,7 @@ export function MainMenu({
 
                 {/* Player profile badge */}
                 <motion.div
-                    className="flex items-center gap-3 bg-slate-800/80 rounded-full pl-1 pr-4 py-1"
+                    className="flex items-center gap-3 bg-slate-950/70 border border-white/10 rounded-full pl-1 pr-4 py-1 backdrop-blur"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5 }}
@@ -134,7 +136,7 @@ export function MainMenu({
                     {avatarUrl ? (
                         <img src={avatarUrl} alt={playerName} className="w-10 h-10 rounded-full object-cover" />
                     ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center">
                             <span className="text-white font-semibold">{playerName.charAt(0)}</span>
                         </div>
                     )}
@@ -148,7 +150,7 @@ export function MainMenu({
             {/* Main content */}
             <main className="min-h-screen flex flex-col items-center justify-center px-6 relative z-10">
                 <motion.div
-                    className="text-center"
+                    className="text-center max-w-2xl"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
@@ -163,9 +165,19 @@ export function MainMenu({
                         <LogoIcon />
                     </motion.div>
 
+                    <motion.div
+                        className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-cyan-200 mb-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.25 }}
+                    >
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                        Daily Bonus +200 XP
+                    </motion.div>
+
                     {/* Title */}
                     <motion.h1
-                        className="text-6xl font-bold text-white mb-3 tracking-tight"
+                        className="text-5xl md:text-6xl text-white mb-3 text-display"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3 }}
@@ -173,17 +185,17 @@ export function MainMenu({
                         BESUGEN
                     </motion.h1>
                     <motion.p
-                        className="text-slate-400 text-lg mb-12"
+                        className="text-slate-300 text-lg md:text-xl mb-10"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
                     >
-                        The Ultimate Card Battle
+                        Battle, bluff, and flex your best hands.
                     </motion.p>
 
                     {/* Menu buttons */}
                     <motion.div
-                        className="space-y-4 max-w-md mx-auto"
+                        className="menu-shell space-y-4 max-w-md mx-auto p-6 md:p-7"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
@@ -191,20 +203,24 @@ export function MainMenu({
                         {/* Play with Friends - Primary action */}
                         <motion.button
                             onClick={() => handleButtonClick(onPlayWithFriends)}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 py-4 flex items-center justify-between transition-all shadow-lg shadow-blue-500/20"
+                            className="group fluid-button relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 text-white px-6 py-4 flex items-center justify-between transition-all shadow-lg shadow-cyan-500/25"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <span
+                                className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
+                                style={{ background: 'radial-gradient(circle at top left, rgba(255,255,255,0.25), transparent 55%)' }}
+                            />
+                            <div className="flex items-center gap-4 relative">
+                                <div className="w-10 h-10 bg-white/15 rounded-lg flex items-center justify-center">
                                     <Users className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="text-left">
                                     <p className="font-semibold">PLAY WITH FRIENDS</p>
-                                    <p className="text-blue-200 text-sm">Create or join a private room</p>
+                                    <p className="text-white/80 text-sm">Create or join a private room</p>
                                 </div>
                             </div>
-                            <span className="text-blue-300">›</span>
+                            <span className="text-white/90 text-xl relative">›</span>
                         </motion.button>
 
                         {/* Play Online - Coming Soon */}
@@ -232,7 +248,7 @@ export function MainMenu({
                         <div className="flex gap-4">
                             <motion.button
                                 onClick={() => handleButtonClick(onSettings)}
-                                className="flex-1 bg-slate-800/50 hover:bg-slate-700/50 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-slate-700/50"
+                                className="flex-1 bg-slate-900/60 hover:bg-slate-800/80 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-2 transition-all border border-white/10"
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                             >
@@ -257,13 +273,17 @@ export function MainMenu({
                         {/* How to Play button */}
                         <motion.button
                             onClick={() => handleButtonClick(handleOpenTutorial)}
-                            className="w-full bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-3 transition-all border border-purple-500/30"
+                            className="w-full bg-gradient-to-r from-amber-500/80 to-orange-500/80 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl px-6 py-3 flex items-center justify-center gap-3 transition-all border border-amber-400/40"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                         >
                             <BookOpen className="w-5 h-5" />
                             <span className="font-medium">HOW TO PLAY</span>
                         </motion.button>
+
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm text-slate-200">
+                            <span className="text-amber-300 font-semibold">Tip:</span> Win the final trick to steal momentum and bonus points.
+                        </div>
                     </motion.div>
                 </motion.div>
             </main>

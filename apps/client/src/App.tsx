@@ -207,33 +207,39 @@ function App({ discordContext }: AppProps) {
         // Create/Join Room Menu
         if (currentScreen === 'menu') {
             return (
-                <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-                    <div className="bg-slate-800/80 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl border border-slate-700">
+                <div className="min-h-screen bg-main-menu relative overflow-hidden flex items-center justify-center px-4 py-8">
+                    <div className="menu-vignette" />
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute -top-24 left-1/3 h-72 w-72 rounded-full bg-cyan-400/15 blur-3xl animate-sway" />
+                        <div className="absolute top-24 -left-10 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl animate-float" />
+                        <div className="absolute bottom-12 right-10 h-64 w-64 rounded-full bg-amber-300/15 blur-3xl animate-float-delayed" />
+                    </div>
+                    <div className="menu-shell relative z-10 max-w-md w-full mx-4 p-6 md:p-8">
                         {/* Back button */}
                         <button
                             onClick={() => setCurrentScreen('home')}
-                            className="mb-4 text-slate-400 hover:text-white transition-colors flex items-center gap-2"
+                            className="mb-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-slate-200 hover:text-white hover:bg-white/10 transition-colors"
                         >
                             <span>←</span>
                             <span>Back to Menu</span>
                         </button>
 
                         <div className="text-center mb-8">
-                            <div className="w-20 h-20 bg-green-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                            <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-cyan-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                                 <span className="text-4xl">🂠</span>
                             </div>
-                            <h1 className="text-3xl font-bold text-white mb-2">Play with Friends</h1>
-                            <p className="text-slate-400">Create or join a private room</p>
+                            <h1 className="text-3xl font-bold text-white mb-2 text-display">Play with Friends</h1>
+                            <p className="text-slate-300">Create or join a private room</p>
                         </div>
 
                         {/* Player Name - show Discord user or input field */}
                         {discordContext?.isDiscord && discordContext.userName ? (
-                            <div className="mb-6 flex items-center gap-4 bg-slate-700/50 rounded-lg p-4">
+                            <div className="mb-6 flex items-center gap-4 bg-slate-950/60 border border-white/10 rounded-xl p-4">
                                 {discordContext.avatarUrl && (
                                     <img
                                         src={discordContext.avatarUrl}
                                         alt="Discord avatar"
-                                        className="w-12 h-12 rounded-full border-2 border-green-500"
+                                        className="w-12 h-12 rounded-full border-2 border-emerald-400"
                                     />
                                 )}
                                 <div>
@@ -249,7 +255,7 @@ function App({ discordContext }: AppProps) {
                                     value={playerName}
                                     onChange={(e) => setPlayerName(e.target.value)}
                                     placeholder="Enter your name..."
-                                    className="w-full bg-slate-700 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    className="input-glass"
                                 />
                             </div>
                         )}
@@ -258,7 +264,7 @@ function App({ discordContext }: AppProps) {
                         <button
                             onClick={handleCreateRoom}
                             disabled={isConnecting}
-                            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg px-6 py-4 mb-4 hover:opacity-90 transition-opacity disabled:opacity-50"
+                            className="fluid-button w-full rounded-xl bg-gradient-to-r from-cyan-500 via-blue-500 to-emerald-500 text-white font-semibold px-6 py-4 mb-5 hover:opacity-95 transition-opacity disabled:opacity-50 overflow-hidden"
                         >
                             {isConnecting ? 'Connecting...' : 'Create Room'}
                         </button>
@@ -273,14 +279,14 @@ function App({ discordContext }: AppProps) {
                                     if (error) setError(null);
                                 }}
                                 placeholder="Room code..."
-                                className={`flex-1 bg-slate-700 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 transition-colors ${
-                                    error ? 'border-red-500 focus:ring-red-500' : 'border-slate-600 focus:ring-blue-500'
+                                className={`flex-1 input-glass ${
+                                    error ? 'border-red-500 focus:ring-red-500' : ''
                                 }`}
                             />
                             <button
                                 onClick={handleJoinRoom}
                                 disabled={isConnecting || !roomCodeInput}
-                                className="bg-blue-600 text-white font-semibold rounded-lg px-6 py-3 hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                className="fluid-button rounded-xl bg-slate-950/60 border border-white/10 text-white font-semibold px-6 py-3 hover:bg-white/10 transition-colors disabled:opacity-50"
                             >
                                 Join
                             </button>
