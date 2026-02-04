@@ -6,9 +6,11 @@ import { Volume2, VolumeX, Volume1, Music, Music2 } from 'lucide-react';
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onNavigateToPrivacy?: () => void;
+    onNavigateToTerms?: () => void;
 }
 
-export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+export function SettingsModal({ isOpen, onClose, onNavigateToPrivacy, onNavigateToTerms }: SettingsModalProps) {
     const [sfxVolume, setSfxVolume] = useState(soundManager.getVolume() * 100);
     const [musicVolume, setMusicVolume] = useState(soundManager.getMusicVolume() * 100);
 
@@ -172,18 +174,18 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             {/* Footer */}
                             <div className="bg-slate-800/30 p-6 flex justify-between items-center">
                                 <div className="flex gap-4 text-sm">
-                                    <a
-                                        href="/privacy"
+                                    <button
+                                        onClick={onNavigateToPrivacy}
                                         className="text-slate-400 hover:text-white transition-colors"
                                     >
                                         Privacy
-                                    </a>
-                                    <a
-                                        href="/terms"
+                                    </button>
+                                    <button
+                                        onClick={onNavigateToTerms}
                                         className="text-slate-400 hover:text-white transition-colors"
                                     >
                                         Terms
-                                    </a>
+                                    </button>
                                 </div>
                                 <button
                                     onClick={() => {

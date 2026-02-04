@@ -200,6 +200,8 @@ function App({ discordContext }: AppProps) {
                         // TODO: Implement ranking
                         console.log('Ranking clicked');
                     }}
+                    onNavigateToPrivacy={() => setCurrentScreen('privacy')}
+                    onNavigateToTerms={() => setCurrentScreen('terms')}
                 />
             );
         }
@@ -397,6 +399,14 @@ function App({ discordContext }: AppProps) {
             <SettingsModal
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
+                onNavigateToPrivacy={() => {
+                    setIsSettingsOpen(false);
+                    setCurrentScreen('privacy');
+                }}
+                onNavigateToTerms={() => {
+                    setIsSettingsOpen(false);
+                    setCurrentScreen('terms');
+                }}
             />
             {/* Reconnect Prompt Modal */}
             {showReconnectPrompt && (

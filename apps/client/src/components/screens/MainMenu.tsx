@@ -73,6 +73,8 @@ interface MainMenuProps {
     onPlayOnline?: () => void;
     onSettings?: () => void;
     onRanking?: () => void;
+    onNavigateToPrivacy?: () => void;
+    onNavigateToTerms?: () => void;
 }
 
 export function MainMenu({
@@ -83,6 +85,8 @@ export function MainMenu({
     onPlayOnline,
     onSettings,
     onRanking,
+    onNavigateToPrivacy,
+    onNavigateToTerms,
 }: MainMenuProps) {
     const [showTutorial, setShowTutorial] = useState(false);
 
@@ -303,9 +307,9 @@ export function MainMenu({
                     </div>
                     <div className="flex items-center gap-3 md:gap-4">
                         <span className="hidden md:inline">•</span>
-                        <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+                        <button onClick={onNavigateToPrivacy} className="hover:text-white transition-colors">Privacy</button>
                         <span>•</span>
-                        <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+                        <button onClick={onNavigateToTerms} className="hover:text-white transition-colors">Terms</button>
                         <span>•</span>
                         <span>v1.0.2</span>
                     </div>
