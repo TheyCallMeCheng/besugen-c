@@ -43,6 +43,18 @@ export function TrickArea({
 
     return (
         <div className={`relative ${containerSize} flex items-center justify-center`}>
+            {/* Suit ranking indicator */}
+            <div className={`absolute ${isSmall ? '-top-6' : '-top-8'} left-1/2 transform -translate-x-1/2 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/10`}>
+                <span className={`text-white/50 ${isSmall ? 'text-[9px]' : 'text-[10px]'} font-medium uppercase tracking-wide mr-1`}>Power</span>
+                <span className={`${isSmall ? 'text-sm' : 'text-base'} text-red-500`}>♥</span>
+                <span className={`text-white/30 ${isSmall ? 'text-[8px]' : 'text-[10px]'}`}>&gt;</span>
+                <span className={`${isSmall ? 'text-sm' : 'text-base'} text-red-500`}>♦</span>
+                <span className={`text-white/30 ${isSmall ? 'text-[8px]' : 'text-[10px]'}`}>&gt;</span>
+                <span className={`${isSmall ? 'text-sm' : 'text-base'} text-zinc-400`}>♣</span>
+                <span className={`text-white/30 ${isSmall ? 'text-[8px]' : 'text-[10px]'}`}>&gt;</span>
+                <span className={`${isSmall ? 'text-sm' : 'text-base'} text-zinc-400`}>♠</span>
+            </div>
+
             {/* Table felt background */}
             <div className="absolute inset-0 rounded-full border-2 border-table-border/30" />
 

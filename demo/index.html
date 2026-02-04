@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Besugen - Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --font-body: 'Outfit', system-ui, sans-serif;
+            --font-display: 'Bungee', system-ui, sans-serif;
+            --menu-bg: #0b1121;
+            --felt-dark: #0d1a18;
+            --felt-mid: #173529;
+            --felt-light: #2b5a47;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--menu-bg);
+            color: white;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Scene Container */
+        .scene-container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scene {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none;
+        }
+
+        .scene.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .scene.zoom-out {
+            transform: scale(1.3);
+            opacity: 0;
+        }
+
+        /* Backgrounds */
+        .bg-main-menu {
+            background-color: #0b1121;
+            background-image:
+                radial-gradient(circle at 18% 22%, rgba(56, 189, 248, 0.25) 0%, transparent 42%),
+                radial-gradient(circle at 82% 18%, rgba(34, 197, 94, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 70% 78%, rgba(251, 191, 36, 0.18) 0%, transparent 38%),
+                linear-gradient(135deg, #0b1020 0%, #172038 55%, #0b1020 100%);
+        }
+
+        .bg-game-table {
+            background-color: var(--felt-dark);
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(52, 211, 153, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 80% 30%, rgba(248, 250, 116, 0.14) 0%, transparent 45%),
+                radial-gradient(ellipse at center, var(--felt-light) 0%, var(--felt-mid) 45%, var(--felt-dark) 100%);
+        }
+
+        .bg-lobby {
+            background-color: #0b1020;
+            background-image:
+                radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.18) 0%, transparent 45%),
+                radial-gradient(circle at 85% 25%, rgba(34, 197, 94, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 70% 80%, rgba(251, 191, 36, 0.14) 0%, transparent 40%),
+                linear-gradient(180deg, #0b1020 0%, #141c30 100%);
+        }
+
+        /* Vignette */
+        .vignette {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 40%, rgba(15, 23, 42, 0) 0%, rgba(6, 8, 18, 0.3) 55%, rgba(3, 5, 12, 0.8) 100%);
+        }
+
+        /* Floating Suits */
+        .floating-suits {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .suit {
+            position: absolute;
+            font-size: 120px;
+            opacity: 0.08;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .suit:nth-child(1) { top: 10%; left: 10%; color: #ef4444; animation-delay: 0s; }
+        .suit:nth-child(2) { top: 20%; right: 15%; color: #1e293b; animation-delay: -2s; }
+        .suit:nth-child(3) { bottom: 20%; left: 20%; color: #ef4444; animation-delay: -4s; }
+        .suit:nth-child(4) { bottom: 15%; right: 10%; color: #1e293b; animation-delay: -6s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Text Overlay */
+        .text-overlay {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+        }
+
+        .overlay-text {
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+            padding: 20px 40px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logo */
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 96px;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 50%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 40px rgba(56, 189, 248, 0.4));
+            opacity: 0;
+            transform: scale(0.5);
+            animation: logoReveal 1.2s ease forwards;
+        }
+
+        .logo-card {
+            font-size: 140px;
+            opacity: 0;
+            animation: cardFloat 1s ease 0.3s forwards;
+        }
+
+        @keyframes logoReveal {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes cardFloat {
+            0% { opacity: 0; transform: translateY(40px) rotate(-10deg); }
+            100% { opacity: 1; transform: translateY(0) rotate(0deg); }
+        }
+
+        .tagline {
+            font-size: 24px;
+            color: rgba(255,255,255,0.7);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.8s forwards;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        /* Lobby Scene */
+        .lobby-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .room-code {
+            background: rgba(0,0,0,0.4);
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 32px;
+            letter-spacing: 0.3em;
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .players-grid {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .player-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        .player-slot.animate {
+            animation: playerJoin 0.5s ease forwards;
+        }
+
+        @keyframes playerJoin {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border: 3px solid #22c55e;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .ready-badge {
+            font-size: 14px;
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Bidding Scene */
+        .bidding-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .bid-title {
+            font-family: var(--font-display);
+            font-size: 36px;
+            color: #fbbf24;
+        }
+
+        .bid-options {
+            display: flex;
+            gap: 16px;
+        }
+
+        .bid-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .bid-btn.animate {
+            animation: bidAppear 0.4s ease forwards;
+        }
+
+        .bid-btn.selected {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-color: #22c55e;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+        }
+
+        @keyframes bidAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timer {
+            font-size: 48px;
+            font-weight: 700;
+            color: #fbbf24;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+        }
+
+        /* Cards */
+        .hand {
+            display: flex;
+            gap: -30px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 100px;
+            height: 140px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+            margin-left: -30px;
+        }
+
+        .card:first-child {
+            margin-left: 0;
+        }
+
+        .card.red { color: #ef4444; }
+        .card.black { color: #1e293b; }
+
+        .card-rank {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+            font-size: 18px;
+        }
+
+        .card-suit {
+            font-size: 48px;
+        }
+
+        .card.hover {
+            transform: translateY(-20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .card.played {
+            animation: playCard 0.6s ease forwards;
+        }
+
+        @keyframes playCard {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-100px) scale(1.1); }
+            100% { transform: translateY(-200px) translateX(var(--play-x, 0)) scale(0.9); opacity: 0.8; }
+        }
+
+        /* Table */
+        .table-area {
+            position: relative;
+            width: 400px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center, rgba(34, 197, 94, 0.2) 0%, transparent 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .played-cards {
+            display: flex;
+            gap: 16px;
+        }
+
+        .played-card {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+
+        .played-card.animate {
+            animation: cardLand 0.5s ease forwards;
+        }
+
+        @keyframes cardLand {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scoring */
+        .scoring-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .score-title {
+            font-family: var(--font-display);
+            font-size: 36px;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 16px 32px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        .score-row.animate {
+            animation: scoreSlide 0.5s ease forwards;
+        }
+
+        @keyframes scoreSlide {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .lives {
+            display: flex;
+            gap: 8px;
+        }
+
+        .heart {
+            font-size: 24px;
+            color: #ef4444;
+        }
+
+        .heart.lost {
+            opacity: 0.3;
+        }
+
+        .score-result {
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .score-result.win {
+            background: rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .score-result.lose {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* CTA Scene */
+        .cta-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .cta-logo {
+            font-family: var(--font-display);
+            font-size: 72px;
+            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 50%, #22c55e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .discord-btn {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 48px;
+            background: linear-gradient(135deg, #5865F2 0%, #4752c4 100%);
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 40px rgba(88, 101, 242, 0.4);
+            opacity: 0;
+            transform: scale(0.8);
+            animation: ctaAppear 0.6s ease 0.5s forwards;
+        }
+
+        @keyframes ctaAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .discord-icon {
+            font-size: 32px;
+        }
+
+        .features {
+            display: flex;
+            gap: 32px;
+            margin-top: 20px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+            opacity: 0;
+        }
+
+        .feature.animate {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .feature-icon {
+            color: #22c55e;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        /* Your Turn Badge */
+        .your-turn {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+            animation: pulse 1.5s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* Game Table with Players */
+        .game-table-container {
+            position: relative;
+            width: 700px;
+            height: 500px;
+        }
+
+        .oval-table {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 280px;
+            background: radial-gradient(ellipse at center, #2b5a47 0%, #1a3d30 60%, #0f2920 100%);
+            border-radius: 50%;
+            border: 12px solid #5d3a1a;
+            box-shadow:
+                inset 0 0 60px rgba(0,0,0,0.5),
+                0 0 0 4px #3d2510,
+                0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .table-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 12px;
+        }
+
+        .table-card {
+            width: 70px;
+            height: 98px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        .table-card.animate {
+            animation: cardAppearTable 0.4s ease forwards;
+        }
+
+        @keyframes cardAppearTable {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .table-card .card-rank {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .table-card .card-suit {
+            font-size: 36px;
+        }
+
+        .table-player {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .table-player.animate {
+            animation: playerAppearTable 0.5s ease forwards;
+        }
+
+        @keyframes playerAppearTable {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .table-player .avatar {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            border-width: 3px;
+        }
+
+        .table-player .player-name {
+            font-size: 14px;
+        }
+
+        .table-player.current-turn .avatar {
+            border-color: #fbbf24;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.6);
+            animation: glowPulse 1.5s ease infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.5); }
+            50% { box-shadow: 0 0 35px rgba(251, 191, 36, 0.8); }
+        }
+
+        .player-cards {
+            display: flex;
+            gap: 2px;
+        }
+
+        .mini-card {
+            width: 35px;
+            height: 50px;
+            background: linear-gradient(135deg, #8b4513 0%, #5d2e0c 100%);
+            border-radius: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .player-bid {
+            position: absolute;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        /* Position players around table */
+        .table-player.top {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+        }
+        .table-player.top.animate {
+            animation: playerAppearTop 0.5s ease forwards;
+        }
+        @keyframes playerAppearTop {
+            to { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+
+        .table-player.bottom {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+        }
+        .table-player.bottom.animate {
+            animation: playerAppearBottom 0.5s ease forwards;
+        }
+        @keyframes playerAppearBottom {
+            to { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+
+        .table-player.left {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%) scale(0.8);
+        }
+        .table-player.left.animate {
+            animation: playerAppearLeft 0.5s ease forwards;
+        }
+        @keyframes playerAppearLeft {
+            to { opacity: 1; transform: translateY(-50%) scale(1); }
+        }
+
+        .table-player.right {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%) scale(0.8);
+        }
+        .table-player.right.animate {
+            animation: playerAppearRight 0.5s ease forwards;
+        }
+        @keyframes playerAppearRight {
+            to { opacity: 1; transform: translateY(-50%) scale(1); }
+        }
+
+        .trick-winner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #1a1a1a;
+            box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+
+        .trick-winner.animate {
+            animation: winnerAppear 0.5s ease forwards;
+        }
+
+        @keyframes winnerAppear {
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .round-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Suit Ranking Indicator */
+        .suit-ranking {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .suit-ranking-label {
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-right: 4px;
+        }
+
+        .suit-ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .suit-ranking-item .suit-icon {
+            font-size: 20px;
+        }
+
+        .suit-ranking-item .suit-icon.hearts { color: #ef4444; }
+        .suit-ranking-item .suit-icon.diamonds { color: #ef4444; }
+        .suit-ranking-item .suit-icon.clubs { color: #a1a1aa; }
+        .suit-ranking-item .suit-icon.spades { color: #a1a1aa; }
+
+        .suit-ranking .chevron {
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scene-container">
+        <!-- Scene 1: Logo Reveal -->
+        <div class="scene bg-main-menu active" id="scene1">
+            <div class="floating-suits">
+                <span class="suit">&hearts;</span>
+                <span class="suit">&spades;</span>
+                <span class="suit">&diams;</span>
+                <span class="suit">&clubs;</span>
+            </div>
+            <div class="vignette"></div>
+            <div class="logo-container">
+                <div class="logo-card">&#127136;</div>
+                <div class="logo">BESUGEN</div>
+                <div class="tagline">Battle, bluff, and flex your best hands</div>
+            </div>
+            <div class="text-overlay">
+                <div class="overlay-text">A trick-taking card game for Discord</div>
+            </div>
+        </div>
+
+        <!-- Scene 2: Lobby -->
+        <div class="scene bg-lobby" id="scene2">
+            <div class="vignette"></div>
+            <div class="glass-panel lobby-content">
+                <h2 style="font-family: var(--font-display); font-size: 28px; color: rgba(255,255,255,0.8);">GAME LOBBY</h2>
+                <div class="room-code">ABCD</div>
+                <div class="players-grid">
+                    <div class="player-slot" id="player1">
+                        <div class="avatar">&#128526;</div>
+                        <span class="player-name">Alex</span>
+                        <span class="ready-badge">&#10003; Ready</span>
+                    </div>
+                    <div class="player-slot" id="player2">
+                        <div class="avatar">&#128513;</div>
+                        <span class="player-name">Jordan</span>
+                        <span class="ready-badge">&#10003; Ready</span>
+                    </div>
+                    <div class="player-slot" id="player3">
+                        <div class="avatar">&#128523;</div>
+                        <span class="player-name">Casey</span>
+                        <span class="ready-badge">&#10003; Ready</span>
+                    </div>
+                    <div class="player-slot" id="player4">
+                        <div class="avatar">&#129299;</div>
+                        <span class="player-name">Morgan</span>
+                        <span class="ready-badge">&#10003; Ready</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-overlay">
+                <div class="overlay-text">Invite 2-6 friends to join your room</div>
+            </div>
+        </div>
+
+        <!-- Scene 3: Bidding -->
+        <div class="scene bg-game-table" id="scene3">
+            <div class="vignette"></div>
+            <div class="glass-panel bidding-content">
+                <div class="bid-title">HOW MANY TRICKS WILL YOU WIN?</div>
+                <div class="hand" style="margin: 20px 0;">
+                    <div class="card red"><span class="card-rank">K</span><span class="card-suit">&hearts;</span></div>
+                    <div class="card black"><span class="card-rank">Q</span><span class="card-suit">&spades;</span></div>
+                    <div class="card red"><span class="card-rank">7</span><span class="card-suit">&diams;</span></div>
+                    <div class="card black"><span class="card-rank">4</span><span class="card-suit">&clubs;</span></div>
+                    <div class="card red"><span class="card-rank">A</span><span class="card-suit">&hearts;</span></div>
+                </div>
+                <div class="bid-options">
+                    <div class="bid-btn" id="bid0">0</div>
+                    <div class="bid-btn" id="bid1">1</div>
+                    <div class="bid-btn" id="bid2">2</div>
+                    <div class="bid-btn" id="bid3">3</div>
+                    <div class="bid-btn" id="bid4">4</div>
+                    <div class="bid-btn" id="bid5">5</div>
+                </div>
+                <div class="timer" id="timer">10</div>
+            </div>
+            <div class="text-overlay">
+                <div class="overlay-text">Predict your tricks before the timer runs out!</div>
+            </div>
+        </div>
+
+        <!-- Scene 4: Game Table Overview -->
+        <div class="scene bg-game-table" id="scene4">
+            <div class="vignette"></div>
+            <div class="round-indicator">Round 1 of 5</div>
+            <div class="suit-ranking">
+                <span class="suit-ranking-label">Suit Power</span>
+                <span class="suit-ranking-item"><span class="suit-icon hearts">&hearts;</span></span>
+                <span class="chevron">&gt;</span>
+                <span class="suit-ranking-item"><span class="suit-icon diamonds">&diams;</span></span>
+                <span class="chevron">&gt;</span>
+                <span class="suit-ranking-item"><span class="suit-icon clubs">&clubs;</span></span>
+                <span class="chevron">&gt;</span>
+                <span class="suit-ranking-item"><span class="suit-icon spades">&spades;</span></span>
+            </div>
+            <div class="game-table-container">
+                <!-- Oval Table -->
+                <div class="oval-table">
+                    <!-- Cards in center -->
+                    <div class="table-center">
+                        <div class="table-card red" id="tc1"><span class="card-rank">K</span><span class="card-suit">&hearts;</span></div>
+                        <div class="table-card black" id="tc2"><span class="card-rank">9</span><span class="card-suit">&spades;</span></div>
+                        <div class="table-card red" id="tc3"><span class="card-rank">Q</span><span class="card-suit">&diams;</span></div>
+                        <div class="table-card black" id="tc4"><span class="card-rank">7</span><span class="card-suit">&clubs;</span></div>
+                    </div>
+                    <div class="trick-winner" id="trickWinner">Alex wins the trick!</div>
+                </div>
+
+                <!-- Player: Top -->
+                <div class="table-player top" id="tp1">
+                    <div class="avatar" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">&#128523;</div>
+                    <span class="player-name">Casey</span>
+                    <div class="player-cards">
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                    </div>
+                    <div class="player-bid" style="bottom: -30px;">Bid: 1</div>
+                </div>
+
+                <!-- Player: Bottom (You) -->
+                <div class="table-player bottom current-turn" id="tp2">
+                    <div class="player-cards">
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                    </div>
+                    <span class="player-name" style="color: #fbbf24;">You</span>
+                    <div class="avatar" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">&#128526;</div>
+                    <div class="player-bid" style="top: -30px;">Bid: 2</div>
+                </div>
+
+                <!-- Player: Left -->
+                <div class="table-player left" id="tp3">
+                    <div class="avatar" style="background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);">&#128513;</div>
+                    <span class="player-name">Jordan</span>
+                    <div class="player-cards">
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                    </div>
+                    <div class="player-bid" style="top: -30px;">Bid: 3</div>
+                </div>
+
+                <!-- Player: Right -->
+                <div class="table-player right" id="tp4">
+                    <div class="avatar" style="background: linear-gradient(135deg, #f97316 0%, #c2410c 100%);">&#129299;</div>
+                    <span class="player-name">Morgan</span>
+                    <div class="player-cards">
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                        <div class="mini-card"></div>
+                    </div>
+                    <div class="player-bid" style="top: -30px;">Bid: 2</div>
+                </div>
+            </div>
+            <div class="text-overlay">
+                <div class="overlay-text">Compete around the table - highest card wins each trick!</div>
+            </div>
+        </div>
+
+        <!-- Scene 5: Playing -->
+        <div class="scene bg-game-table" id="scene5">
+            <div class="vignette"></div>
+            <div class="suit-ranking">
+                <span class="suit-ranking-label">Suit Power</span>
+                <span class="suit-ranking-item"><span class="suit-icon hearts">&hearts;</span></span>
+                <span class="chevron">&gt;</span>
+                <span class="suit-ranking-item"><span class="suit-icon diamonds">&diams;</span></span>
+                <span class="chevron">&gt;</span>
+                <span class="suit-ranking-item"><span class="suit-icon clubs">&clubs;</span></span>
+                <span class="chevron">&gt;</span>
+                <span class="suit-ranking-item"><span class="suit-icon spades">&spades;</span></span>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div class="table-area">
+                    <div class="played-cards">
+                        <div class="card red played-card" id="played1"><span class="card-rank">10</span><span class="card-suit">&hearts;</span></div>
+                        <div class="card black played-card" id="played2"><span class="card-rank">J</span><span class="card-suit">&spades;</span></div>
+                        <div class="card red played-card" id="played3"><span class="card-rank">5</span><span class="card-suit">&diams;</span></div>
+                    </div>
+                </div>
+                <div style="position: relative;">
+                    <div class="your-turn">YOUR TURN!</div>
+                    <div class="hand">
+                        <div class="card red"><span class="card-rank">K</span><span class="card-suit">&hearts;</span></div>
+                        <div class="card black hover" id="hoveredCard"><span class="card-rank">Q</span><span class="card-suit">&spades;</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-overlay">
+                <div class="overlay-text">Play your cards strategically to win tricks</div>
+            </div>
+        </div>
+
+        <!-- Scene 6: Scoring -->
+        <div class="scene bg-lobby" id="scene6">
+            <div class="vignette"></div>
+            <div class="glass-panel scoring-content">
+                <div class="score-title" style="color: #fbbf24;">ROUND COMPLETE</div>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="score-row" id="score1">
+                        <div class="avatar" style="width: 50px; height: 50px; font-size: 20px;">&#128526;</div>
+                        <span style="width: 80px;">Alex</span>
+                        <span>Bid: 2 | Won: 2</span>
+                        <div class="lives">
+                            <span class="heart">&hearts;</span>
+                            <span class="heart">&hearts;</span>
+                            <span class="heart">&hearts;</span>
+                        </div>
+                        <span class="score-result win">Safe!</span>
+                    </div>
+                    <div class="score-row" id="score2">
+                        <div class="avatar" style="width: 50px; height: 50px; font-size: 20px;">&#128513;</div>
+                        <span style="width: 80px;">Jordan</span>
+                        <span>Bid: 3 | Won: 1</span>
+                        <div class="lives">
+                            <span class="heart">&hearts;</span>
+                            <span class="heart">&hearts;</span>
+                            <span class="heart lost">&hearts;</span>
+                        </div>
+                        <span class="score-result lose">-1 Life</span>
+                    </div>
+                    <div class="score-row" id="score3">
+                        <div class="avatar" style="width: 50px; height: 50px; font-size: 20px;">&#128523;</div>
+                        <span style="width: 80px;">Casey</span>
+                        <span>Bid: 1 | Won: 1</span>
+                        <div class="lives">
+                            <span class="heart">&hearts;</span>
+                            <span class="heart">&hearts;</span>
+                            <span class="heart">&hearts;</span>
+                        </div>
+                        <span class="score-result win">Safe!</span>
+                    </div>
+                    <div class="score-row" id="score4">
+                        <div class="avatar" style="width: 50px; height: 50px; font-size: 20px;">&#129299;</div>
+                        <span style="width: 80px;">Morgan</span>
+                        <span>Bid: 0 | Won: 1</span>
+                        <div class="lives">
+                            <span class="heart">&hearts;</span>
+                            <span class="heart lost">&hearts;</span>
+                            <span class="heart lost">&hearts;</span>
+                        </div>
+                        <span class="score-result lose">-1 Life</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-overlay">
+                <div class="overlay-text">Predict correctly to survive - last one standing wins!</div>
+            </div>
+        </div>
+
+        <!-- Scene 7: CTA -->
+        <div class="scene bg-main-menu" id="scene7">
+            <div class="floating-suits">
+                <span class="suit">&hearts;</span>
+                <span class="suit">&spades;</span>
+                <span class="suit">&diams;</span>
+                <span class="suit">&clubs;</span>
+            </div>
+            <div class="vignette"></div>
+            <div class="cta-content">
+                <div class="logo-card" style="font-size: 100px; opacity: 1;">&#127136;</div>
+                <div class="cta-logo">BESUGEN</div>
+                <div class="discord-btn">
+                    <span class="discord-icon">
+                        <svg width="32" height="32" viewBox="0 0 71 55" fill="currentColor">
+                            <path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 41 41 0 00-1.8 3.7 54 54 0 00-16.2 0A38 38 0 0025.3.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.4 5a.2.2 0 00-.1 0A60 60 0 00.3 45.3a.2.2 0 000 .2 58.7 58.7 0 0017.7 9 .2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.7 38.7 0 01-5.5-2.6.2.2 0 010-.4l1.1-.9a.2.2 0 01.2 0 41.9 41.9 0 0035.6 0 .2.2 0 01.2 0l1.1.9a.2.2 0 010 .3 36.3 36.3 0 01-5.5 2.7.2.2 0 00-.1.3 47.2 47.2 0 003.6 5.9.2.2 0 00.2.1 58.5 58.5 0 0017.8-9 .2.2 0 000-.1 59.5 59.5 0 00-10.1-40.2.2.2 0 00-.1-.1zM23.7 37.3c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1c3.6 0 6.4 3.2 6.3 7.1 0 3.9-2.8 7.1-6.3 7.1zm23.3 0c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1c3.6 0 6.4 3.2 6.3 7.1 0 3.9-2.7 7.1-6.3 7.1z"/>
+                        </svg>
+                    </span>
+                    Play on Discord
+                </div>
+                <div class="features">
+                    <div class="feature" id="feat1"><span class="feature-icon">&#10003;</span> 2-6 Players</div>
+                    <div class="feature" id="feat2"><span class="feature-icon">&#10003;</span> Quick Rounds</div>
+                    <div class="feature" id="feat3"><span class="feature-icon">&#10003;</span> Mobile Friendly</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Dots -->
+    <div class="progress-container">
+        <div class="progress-dot active" data-scene="1"></div>
+        <div class="progress-dot" data-scene="2"></div>
+        <div class="progress-dot" data-scene="3"></div>
+        <div class="progress-dot" data-scene="4"></div>
+        <div class="progress-dot" data-scene="5"></div>
+        <div class="progress-dot" data-scene="6"></div>
+        <div class="progress-dot" data-scene="7"></div>
+    </div>
+
+
+    <script>
+        let currentScene = 1;
+        const totalScenes = 7;
+        const sceneDurations = [4000, 4000, 5000, 5500, 4500, 5000, 5000];
+        let sceneTimeout;
+        let isTransitioning = false;
+
+        function updateProgress() {
+            document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i + 1 === currentScene);
+            });
+        }
+
+        function goToScene(sceneNum) {
+            if (isTransitioning || sceneNum === currentScene) return;
+            isTransitioning = true;
+
+            clearTimeout(sceneTimeout);
+
+            const oldScene = document.getElementById(`scene${currentScene}`);
+            const newScene = document.getElementById(`scene${sceneNum}`);
+
+            // Zoom out old scene
+            oldScene.classList.add('zoom-out');
+            oldScene.classList.remove('active');
+
+            setTimeout(() => {
+                oldScene.classList.remove('zoom-out');
+                newScene.classList.add('active');
+                currentScene = sceneNum;
+                updateProgress();
+                runSceneAnimations(sceneNum);
+                isTransitioning = false;
+
+                // Auto advance
+                if (currentScene < totalScenes) {
+                    sceneTimeout = setTimeout(() => nextScene(), sceneDurations[currentScene - 1]);
+                }
+            }, 400);
+        }
+
+        function nextScene() {
+            if (currentScene < totalScenes) {
+                goToScene(currentScene + 1);
+            }
+        }
+
+        function runSceneAnimations(scene) {
+            switch(scene) {
+                case 2: // Lobby
+                    ['player1', 'player2', 'player3', 'player4'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, i * 300);
+                    });
+                    break;
+
+                case 3: // Bidding
+                    ['bid0', 'bid1', 'bid2', 'bid3', 'bid4', 'bid5'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, i * 100);
+                    });
+                    // Animate selection
+                    setTimeout(() => {
+                        document.getElementById('bid3').classList.add('selected');
+                    }, 1500);
+                    // Timer countdown
+                    let time = 10;
+                    const timerEl = document.getElementById('timer');
+                    const countdown = setInterval(() => {
+                        time--;
+                        if (time >= 0) timerEl.textContent = time;
+                        if (time <= 0) clearInterval(countdown);
+                    }, 400);
+                    break;
+
+                case 4: // Game Table Overview
+                    // Players appear around table
+                    ['tp1', 'tp2', 'tp3', 'tp4'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, i * 250);
+                    });
+                    // Cards appear in center
+                    ['tc1', 'tc2', 'tc3', 'tc4'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, 1200 + i * 300);
+                    });
+                    // Winner announcement
+                    setTimeout(() => {
+                        document.getElementById('trickWinner').classList.add('animate');
+                    }, 3500);
+                    break;
+
+                case 5: // Playing (Your Turn)
+                    ['played1', 'played2', 'played3'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, i * 400);
+                    });
+                    break;
+
+                case 6: // Scoring
+                    ['score1', 'score2', 'score3', 'score4'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, i * 350);
+                    });
+                    break;
+
+                case 7: // CTA
+                    ['feat1', 'feat2', 'feat3'].forEach((id, i) => {
+                        setTimeout(() => {
+                            document.getElementById(id).classList.add('animate');
+                        }, 800 + i * 200);
+                    });
+                    break;
+            }
+        }
+
+        // Start
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            sceneTimeout = setTimeout(() => nextScene(), sceneDurations[0]);
+        });
+
+        // Skip with space or click
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                nextScene();
+            }
+        });
+
+        document.addEventListener('click', () => {
+            nextScene();
+        });
+
+        // Click progress dots
+        document.querySelectorAll('.progress-dot').forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                goToScene(parseInt(dot.dataset.scene));
+            });
+        });
+    </script>
+</body>
+</html>
